@@ -94,4 +94,3 @@ function get_time_range($date) {
 }
 
 print($layout_content);
-?>

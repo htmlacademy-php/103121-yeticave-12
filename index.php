@@ -79,18 +79,12 @@ $layout_content = include_template('layout.php',
     ]
 );
 
-function get_time_range($date) {
-    $current_date = time();
-    $finish_date =  strtotime($date);
-
-    $time_difference = $finish_date - $current_date;
-    $one_hour =
+function get_time_range(string $date) {
+    $time_difference = strtotime($date) - time();
     $hours_count = floor($time_difference / 3600);
     $minutes_count = floor(($time_difference % 3600) / 60);
 
-    $time_count = [$hours_count, $minutes_count];
-
-    return $time_count;
+    return [$hours_count, $minutes_count];
 }
 
 print($layout_content);

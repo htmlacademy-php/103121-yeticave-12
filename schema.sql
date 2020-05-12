@@ -1,0 +1,48 @@
+CREATE DATABASE yeti_cave
+DEFAULT CHARACTER SET utf8
+DEFAULT COLLATE utf8_general_ci;
+
+USE yeti_cave;
+
+CREATE TABLE categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(128) NOT NULL UNIQUE,
+  code VARCHAR(128) NOT NULL UNIQUE
+);
+
+CREATE TABLE lots (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  author_id INT NOT NULL,
+  winner_id INT NOT NULL,
+  category_id INT NOT NULL,
+  start_date TIMESTAMP NOT NULL,
+  name VARCHAR(128) NOT NULL,
+  description VARCHAR(128) NOT NULL,
+  image VARCHAR(128) NOT NULL,
+  start_price INT NOT NULL,
+  finish_date TIMESTAMP NOT NULL,
+  bet_step INT NOT NULL
+);
+
+CREATE TABLE bets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  lot_id INT NOT NULL UNIQUE,
+  date TIMESTAMP NOT NULL,
+  price INT NOT NULL
+);
+
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  lot_id INT NOT NULL UNIQUE,
+  bet_id INT NOT NULL UNIQUE,
+  date TIMESTAMP NOT NULL,
+  email VARCHAR(128) NOT NULL UNIQUE,
+  name VARCHAR(128) NOT NULL UNIQUE,
+  password VARCHAR(128) NOT NULL,
+  contacts VARCHAR(128) NOT NULL
+);
+
+CREATE INDEX category_index ON categories(name);
+
+CREATE INDEX lot_index ON lots(name);

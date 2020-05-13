@@ -54,6 +54,14 @@ $goods = [
     ]
 ];
 
+/**
+ * @param float $old_price
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string
+ */
+
 function format_price(float $old_price) {
     $new_price = ceil($old_price);
 
@@ -78,6 +86,14 @@ $layout_content = include_template('layout.php',
         'categories' => $categories
     ]
 );
+
+/**
+ * @param string $date
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return int[]
+ */
 
 function get_time_range(string $date) {
     $time_difference = strtotime($date) - time();

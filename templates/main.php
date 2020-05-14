@@ -27,12 +27,12 @@
                         <span class="lot__amount">Стартовая цена</span>
                         <span class="lot__cost"><?= format_price(htmlspecialchars($good['price'], ENT_QUOTES)); ?></span>
                     </div>
-                    <div
+                    <div class="lot__timer timer
                         <?= get_time_range($good['finish_date'])[0] >= 1
-                            ? 'class="lot__timer timer"'
-                            : 'class="lot__timer timer timer--finishing"'
+                            ? ''
+                            : 'timer--finishing'
                         ?>
-                    >
+                    ">
                         <?= htmlspecialchars(implode(':' ,get_time_range($good['finish_date'])), ENT_QUOTES); ?>
                     </div>
                 </div>

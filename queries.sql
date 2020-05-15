@@ -26,25 +26,40 @@ INSERT INTO bets (user_id, lot_id, price) VALUES
 (2, 1, 15000),
 (1, 4, 15000);
 
-SELECT name
+
+/* Получаем все категории */
+
+SELECT name AS category_name
 FROM categories;
 
-SELECT l.name, l.start_price, l.image, b.price, c.name
-FROM lots l JOIN bets b ON l.id = b.lot_id
+/* Получаем самые новые открытые лоты */
+
+SELECT l.name AS lot_name,
+    l.start_price,
+    l.image,
+    (CASE WHEN (b.price IS NULL) THEN l.start_price ELSE b.price END) AS current_price,
+    c.name AS category_name
+FROM lots l LEFT JOIN bets b ON l.id = b.lot_id
 JOIN categories c ON l.category_id = c.id
 WHERE UNIX_TIMESTAMP(l.finish_date) < CURRENT_TIMESTAMP()
 ORDER BY l.start_date DESC
 LIMIT 3;
 
-SELECT l.name, c.name
+/* Получаем лот по его ID */
+
+SELECT l.name AS lot_name, c.name AS category_name
 FROM lots l JOIN categories c ON l.category_id = c.id
 WHERE l.id = 1;
+
+/* Обновляем название лота по его ID */
 
 UPDATE lots
 SET name = 'Burton Ply Mens 2016/2017 Snowboard'
 WHERE id = 2;
 
-SELECT b.id
+/* Получаем список ставок для лота по его ID */
+
+SELECT l.name AS lot_name, b.id AS bet_id, b.price AS bet_price
 FROM bets b JOIN lots l ON b.lot_id = l.id
 WHERE l.id = 1
 ORDER BY b.date ASC;

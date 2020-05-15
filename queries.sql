@@ -1,5 +1,7 @@
 USE yeti_cave;
 
+SET NAMES utf8mb4 COLLATE utf8mb4_general_ci;
+
 INSERT INTO categories (name, code) VALUES
 ('Доски и лыжи', 'boards'),
 ('Крепления', 'attachment'),

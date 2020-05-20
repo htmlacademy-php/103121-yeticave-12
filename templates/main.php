@@ -3,8 +3,8 @@
     <p class="promo__text">На нашем интернет-аукционе ты найдёшь самое эксклюзивное сноубордическое и горнолыжное снаряжение.</p>
     <ul class="promo__list">
         <?php foreach ($categories as $category): ?>
-        <li class="promo__item promo__item--boards">
-            <a class="promo__link" href="pages/all-lots.html"><?= htmlspecialchars($category, ENT_QUOTES); ?></a>
+        <li class="promo__item promo__item--<?= htmlspecialchars($category['code'], ENT_QUOTES); ?>">
+            <a class="promo__link" href="pages/all-lots.html"><?= htmlspecialchars($category['name'], ENT_QUOTES); ?></a>
         </li>
         <?php endforeach; ?>
     </ul>
@@ -17,7 +17,7 @@
         <?php foreach ($goods as $good): ?>
         <li class="lots__item lot">
             <div class="lot__image">
-                <img src=<?= htmlspecialchars($good['img'], ENT_QUOTES); ?> width="350" height="260" alt=<?= htmlspecialchars($good['name'], ENT_QUOTES); ?>>
+                <img src=<?= htmlspecialchars($good['image'], ENT_QUOTES); ?> width="350" height="260" alt=<?= htmlspecialchars($good['name'], ENT_QUOTES); ?>>
             </div>
             <div class="lot__info">
                 <span class="lot__category"><?= htmlspecialchars($good['category'], ENT_QUOTES); ?></span>

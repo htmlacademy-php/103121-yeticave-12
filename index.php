@@ -7,52 +7,33 @@ $user_name = 'Артём';
 
 $title = 'Yeti-cave';
 
-$categories = ['Доски и лыжи', 'Крепления', 'Ботинки', 'Одежда', 'Инструменты', 'Разное'];
+$connect = mysqli_connect('localhost', 'php', 'password', 'yeti_cave');
 
-$goods = [
-    [
-        'name' => '2014 Rossignol District Snowboard',
-        'category' => 'Доски и лыжи',
-        'price' => 10999,
-        'img' => 'img/lot-1.jpg',
-        'finish_date' => '2020-06-12'
-    ],
-    [
-        'name' => 'DC Ply Mens 2016/2017 Snowboard',
-        'category' => 'Доски и лыжи',
-        'price' => 159999,
-        'img' => 'img/lot-2.jpg',
-        'finish_date' => '2020-09-03'
-    ],
-    [
-        'name' => 'Крепления Union Contact Pro 2015 года размер L/XL',
-        'category' => 'Крепления',
-        'price' => 8000,
-        'img' => 'img/lot-3.jpg',
-        'finish_date' => '2020-05-15'
-    ],
-    [
-        'name' => 'Ботинки для сноуборда DC Mutiny Charocal',
-        'category' => 'Ботинки',
-        'price' => 10999,
-        'img' => 'img/lot-4.jpg',
-        'finish_date' => '2020-07-01'
-    ],
-    [
-        'name' => 'Куртка для сноуборда DC Mutiny Charocal',
-        'category' => 'Одежда',
-        'price' => 7500,
-        'img' => 'img/lot-5.jpg',
-        'finish_date' => '2020-05-29'
-    ],
-    [
-        'name' => 'Маска Oakley Canopy',
-        'category' => 'Разное',
-        'price' => 5400,
-        'img' => 'img/lot-6.jpg',
-        'finish_date' => '2020-05-20'
-    ]
-];
+$sql_lots = 'SELECT l.name,
+l.start_price,
+l.image,
+IFNULL(b.price, l.start_price) AS price,
+c.name AS category,
+l.finish_date
+FROM lots l
+LEFT JOIN bets b ON l.id = b.lot_id
+JOIN categories c ON l.category_id = c.id
+WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+ORDER BY l.start_date DESC;';
+
+$sql_categories = 'SELECT * FROM categories;';
+
+if ($connect == false) {
+    print('Ошибка подключения: ' . mysqli_connect_error());
+}
+
+mysqli_set_charset($connect, 'utf8mb4');
+$result_lots = mysqli_query($connect, $sql_lots);
+$result_categories = mysqli_query($connect, $sql_categories);
+
+$categories = mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
+
+$goods = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
 
 /**
  * @param float $old_price

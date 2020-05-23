@@ -1,13 +1,12 @@
 <?php
 require_once('helpers.php');
+require_once('init.php');
 
 $is_auth = rand(0, 1);
 
 $user_name = 'Артём';
 
 $title = 'Yeti-cave';
-
-$connect = mysqli_connect('localhost', 'php', 'password', 'yeti_cave');
 
 $sql_lots = 'SELECT l.name,
 l.start_price,
@@ -23,16 +22,10 @@ ORDER BY l.start_date DESC;';
 
 $sql_categories = 'SELECT * FROM categories;';
 
-if ($connect == false) {
-    print('Ошибка подключения: ' . mysqli_connect_error());
-}
-
-mysqli_set_charset($connect, 'utf8mb4');
-$result_lots = mysqli_query($connect, $sql_lots);
-$result_categories = mysqli_query($connect, $sql_categories);
+$result_lots = handle_query($connect, $sql_lots);
+$result_categories = handle_query($connect, $sql_categories);
 
 $categories = mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
-
 $goods = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
 
 /**

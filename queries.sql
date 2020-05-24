@@ -29,21 +29,22 @@ INSERT INTO bets (user_id, lot_id, price) VALUES
 
 /* Получаем все категории */
 
-SELECT name AS category_name
+SELECT *
 FROM categories;
 
 /* Получаем самые новые открытые лоты */
 
-SELECT l.name AS lot_name,
-    l.start_price,
-    l.image,
-    (CASE WHEN (b.price IS NULL) THEN l.start_price ELSE b.price END) AS current_price,
-    c.name AS category_name
-FROM lots l LEFT JOIN bets b ON l.id = b.lot_id
+SELECT l.name,
+  l.start_price,
+  l.image,
+  IFNULL(b.price, l.start_price) AS price,
+  c.name AS category,
+  l.finish_date
+FROM lots l
+LEFT JOIN bets b ON l.id = b.lot_id
 JOIN categories c ON l.category_id = c.id
-WHERE UNIX_TIMESTAMP(l.finish_date) < CURRENT_TIMESTAMP()
-ORDER BY l.start_date DESC
-LIMIT 3;
+WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+ORDER BY l.start_date DESC;
 
 /* Получаем лот по его ID */
 

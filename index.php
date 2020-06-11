@@ -2,14 +2,19 @@
 require_once('helpers.php');
 require_once('init.php');
 require_once('functions.php');
-
-$is_auth = rand(0, 1);
-
-$user_name = 'Артём';
+require_once('categories.php');
+require_once('auth.php');
 
 $title = 'Yeti-cave';
 
-$sql_lots = 'SELECT l.name,
+$categories_content  = include_template('categories.php',
+    [
+        'categories' => $categories
+    ]
+);
+
+$sql_get_lots = 'SELECT l.id,
+l.name,
 l.start_price,
 l.image,
 IFNULL(b.price, l.start_price) AS price,
@@ -21,18 +26,15 @@ JOIN categories c ON l.category_id = c.id
 WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
 ORDER BY l.start_date DESC;';
 
-$sql_categories = 'SELECT * FROM categories;';
+$result_lots = handle_query($connect, $sql_get_lots);
 
-$result_lots = handle_query($connect, $sql_lots);
-$result_categories = handle_query($connect, $sql_categories);
-
-$categories = mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
 $goods = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
 
 $page_content = include_template('main.php',
     [
+        'goods' => $goods,
         'categories' => $categories,
-        'goods' => $goods
+        'categories_content' => $categories_content
     ]
 );
 

@@ -6,22 +6,3 @@ if (!$connect) {
 }
 
 mysqli_set_charset($connect, 'utf8mb4');
-
-/**
- * @param object $connect
- * @param string $sql
- *
- * @author Trikashnyi Artem tema-luch@mail.ru
- *
- * @return object
- */
-
-function handle_query(object $connect, string $sql) {
-    $statement = mysqli_prepare($connect, $sql);
-    $result = mysqli_query($connect, $sql);
-    if (!$result) {
-        exit("Ошибка MySQL: " . mysqli_error($connect));
-    }
-
-    return $result;
-}

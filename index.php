@@ -28,11 +28,11 @@ ORDER BY l.start_date DESC;';
 
 $result_lots = handle_query($connect, $sql_get_lots);
 
-$goods = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
+$lots = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
 
 $page_content = include_template('main.php',
     [
-        'goods' => $goods,
+        'lots' => $lots,
         'categories' => $categories,
         'categories_content' => $categories_content
     ]

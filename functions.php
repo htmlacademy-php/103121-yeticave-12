@@ -28,9 +28,9 @@ function handle_query(mysqli $connect, string $sql) {
 function format_price(float $old_price) {
     $new_price = ceil($old_price);
 
-    $new_price = $new_price < 1000 ? $new_price . ' ₽' : number_format($new_price, 0, '', ' ') . ' ₽';
+    $new_price = $new_price < 1000 ? $new_price : number_format($new_price, 0, '', ' ');
 
-    return $new_price;
+    return $new_price . ' ₽';
 }
 
 /**

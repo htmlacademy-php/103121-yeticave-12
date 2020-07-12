@@ -1,6 +1,6 @@
 <?php
 require_once('init.php');
-require_once('functions.php');
+require_once('helpers.php');
 
 $sql_get_categories = 'SELECT * FROM categories;';
 $result_categories = handle_query($connect, $sql_get_categories);

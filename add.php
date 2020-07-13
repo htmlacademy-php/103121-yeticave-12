@@ -1,9 +1,10 @@
 <?php
-require_once('categories.php');
 require_once('auth.php');
 require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
+
+$categories = getCategories($connect);
 
 $categories_ids = array_column($categories, 'id');
 
@@ -15,7 +16,7 @@ $categories_content  = include_template('categories.php',
 
 $title = 'Добавление лота';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $required_fields = ['lot-name'];
     $errors = [];
 
@@ -24,19 +25,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             return validateCategory($value, $categories_ids);
         },
         'lot-step' => function($value) {
-            return validateInt($value);
+            return validateInt((int)$value);
         },
         'lot-rate' => function($value) {
-            return validateFloat($value);
+            return validateFloat((float)$value);
         },
         'lot-date' => function($value) {
             return validateDate($value);
         }
     ];
 
-    $lot = filter_input_array(INPUT_POST, ['lot-name' => FILTER_DEFAULT, 'category' => FILTER_DEFAULT,
-        'message' => FILTER_DEFAULT, 'lot-rate' => FILTER_DEFAULT, 'lot-step' => FILTER_DEFAULT,
-        'lot-date' => FILTER_DEFAULT], true);
+    $lot = filter_input_array(INPUT_POST, [
+            'lot-name' => FILTER_DEFAULT,
+            'category' => FILTER_DEFAULT,
+            'message' => FILTER_DEFAULT,
+            'lot-rate' => FILTER_DEFAULT,
+            'lot-step' => FILTER_DEFAULT,
+            'lot-date' => FILTER_DEFAULT
+        ], true);
 
     foreach ($_POST as $key => $value) {
         $errors[$key] = validateFilled($value);
@@ -49,36 +55,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $errors = array_filter($errors);
 
     if (!empty($_FILES['lot-img']['name'])) {
-        $mime_types = ['image/jpg', 'image/jpeg', 'image/png'];
         $tmp_name = $_FILES['lot-img']['tmp_name'];
-        $filename = $_FILES['lot-img']['name'];
         $file_size = $_FILES['lot-img']['size'];
+        $file_error = $_FILES['lot-img']['error'];
 
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $file_type = finfo_file($finfo, $tmp_name);
-        if (!in_array($file_type, $mime_types)) {
+        $file_type_array = explode('/', $file_type);
+        $filepath = 'uploads/' . uniqid() . '.' . end($file_type_array);
+        if (!in_array($file_type, ['image/jpg', 'image/jpeg', 'image/png'])) {
             $errors['lot-img'] = 'Загрузите картинку в формате JPG, JPEG, PNG';
         } else if ($file_size > 5000000) {
             $errors['lot-img'] = 'Максимальный размер файла: 5мб';
+        } else {
+            move_uploaded_file($tmp_name, $filepath);
+            $lot['lot-img'] = $filepath;
         }
-        else {
-            move_uploaded_file($tmp_name, 'uploads/' . $filename);
-            $lot['lot-img'] = 'uploads/' . $filename;
-        }
-    }
-    else {
+    } else {
         $errors['lot-img'] = 'Вы не загрузили файл';
     }
 
     if (!count($errors)) {
-        $sql = 'INSERT INTO lots (author_id, start_date, name, category_id, description, start_price, bet_step, finish_date, image) VALUES (1, NOW(), ?, ?, ?, ?, ?, ?, ?)';
-        $stmt = db_get_prepare_stmt($connect, $sql, $lot);
-        $res = mysqli_stmt_execute($stmt);
+        $sql = 'INSERT INTO lots (author_id, name, category_id, description, start_price, bet_step, finish_date, image) VALUES (1, ?, ?, ?, ?, ?, ?, ?)';
+        $res = mysqli_stmt_execute(db_get_prepare_stmt($connect, $sql, $lot));
 
         if ($res) {
-            $lot_id = mysqli_insert_id($connect);
-
-            header("Location: lot.php?id=" . $lot_id);
+            header('Location: lot.php?id=' . mysqli_insert_id($connect));
         }
     }
 }

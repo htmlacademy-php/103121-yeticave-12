@@ -1,10 +1,11 @@
 <?php
 require_once('helpers.php');
 require_once('init.php');
-require_once('categories.php');
 require_once('auth.php');
 
 $title = 'Yeti-cave';
+
+$categories = getCategories($connect);
 
 $categories_content  = include_template('categories.php',
     [

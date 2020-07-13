@@ -9,43 +9,31 @@
  */
 
 function validateFilled(string $name) {
-    if (empty($name)) {
-        return "Это поле должно быть заполнено";
-    }
-
-    return null;
+    return (empty($name)) ? 'Это поле должно быть заполнено' : null;
 }
 
 /**
- * @param string $value
+ * @param int $value
  *
  * @author Trikashnyi Artem tema-luch@mail.ru
  *
  * @return string|null
  */
 
-function validateInt(string $value) {
-    if ((int)$value <= 0) {
-        return "В этом поле должно быть целое положительное число";
-    }
-
-    return null;
+function validateInt(int $value) {
+    return ($value <= 0) ? 'В этом поле должно быть целое положительное число' : null;
 }
 
 /**
- * @param string $value
+ * @param float $value
  *
  * @author Trikashnyi Artem tema-luch@mail.ru
  *
  * @return string|null
  */
 
-function validateFloat(string $value) {
-    if ((float)$value <= 0) {
-        return "В этом поле должно быть положительное число";
-    }
-
-    return null;
+function validateFloat(float $value) {
+    return ($value <= 0) ? 'В этом поле должно быть положительное число' : null;
 }
 
 /**
@@ -58,11 +46,7 @@ function validateFloat(string $value) {
  */
 
 function validateCategory(string $id, array $allowed_list) {
-    if (!in_array($id, $allowed_list)) {
-        return "Указана несуществующая категория";
-    }
-
-    return null;
+    return (!in_array($id, $allowed_list)) ? 'Указана несуществующая категория' : null;
 }
 
 /**
@@ -75,9 +59,9 @@ function validateCategory(string $id, array $allowed_list) {
 
 function validateDate(?string $value) {
     if (!is_date_valid($value)) {
-        return "Необходимо ввести дату в формате ГГГГ-ММ-ДД";
-    } else if (strtotime($value) < strtotime("+1 day")) {
-        return "Указанная дата должна быть больше текущей даты хотя бы на один день";
+        return 'Необходимо ввести дату в формате ГГГГ-ММ-ДД';
+    } else if (strtotime($value) < strtotime('+1 day')) {
+        return 'Указанная дата должна быть больше текущей даты хотя бы на один день';
     }
 
     return null;

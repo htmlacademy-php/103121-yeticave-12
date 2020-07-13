@@ -5,7 +5,7 @@
         <div class="lot-item__content">
             <div class="lot-item__left">
                 <div class="lot-item__image">
-                    <img src=<?= htmlspecialchars($lot['image'], ENT_QUOTES); ?> width="730" height="548" alt=<?= htmlspecialchars($lot['lot_name'], ENT_QUOTES); ?>>
+                    <img src="<?= htmlspecialchars($lot['image'], ENT_QUOTES); ?>" width="730" height="548" alt="<?= htmlspecialchars($lot['lot_name'], ENT_QUOTES); ?>">
                 </div>
                 <p class="lot-item__category">Категория: <span><?= htmlspecialchars($lot['category_name'], ENT_QUOTES); ?></span></p>
                 <p class="lot-item__description"><?= htmlspecialchars($lot['description'], ENT_QUOTES); ?></p>

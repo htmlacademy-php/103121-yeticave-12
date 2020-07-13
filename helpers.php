@@ -155,7 +155,7 @@ function include_template($name, array $data = []) {
 function handle_query(mysqli $connect, string $sql) {
     $result = mysqli_query($connect, $sql);
     if (!$result) {
-        exit("Ошибка MySQL: " . mysqli_error($connect));
+        exit('Ошибка MySQL: ' . mysqli_error($connect));
     }
 
     return $result;
@@ -193,7 +193,29 @@ function get_time_range(string $date) {
     return [$hours_count, $minutes_count];
 }
 
-function getPostVal($name) {
+/**
+ * @param string $name
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string
+ */
+
+function getPostVal(string $name) {
     return filter_input(INPUT_POST, $name);
+}
+
+/**
+ * @param object $connect
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mixed
+ */
+
+function getCategories(mysqli $connect) {
+    $sql_get_categories = 'SELECT * FROM categories;';
+    $result_categories = handle_query($connect, $sql_get_categories);
+    return mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
 }
 

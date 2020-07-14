@@ -17,7 +17,6 @@ $categories_content  = include_template('categories.php',
 $title = 'Добавление лота';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $required_fields = ['lot-name'];
     $errors = [];
 
     $rules = [

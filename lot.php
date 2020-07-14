@@ -1,10 +1,10 @@
 
 <?php
-require_once('categories.php');
 require_once('auth.php');
 require_once('helpers.php');
 require_once('init.php');
-require_once('functions.php');
+
+$categories = getCategories($connect);
 
 $categories_content  = include_template('categories.php',
     [

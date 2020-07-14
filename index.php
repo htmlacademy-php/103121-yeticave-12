@@ -1,11 +1,11 @@
 <?php
 require_once('helpers.php');
 require_once('init.php');
-require_once('functions.php');
-require_once('categories.php');
 require_once('auth.php');
 
 $title = 'Yeti-cave';
+
+$categories = getCategories($connect);
 
 $categories_content  = include_template('categories.php',
     [
@@ -28,11 +28,11 @@ ORDER BY l.start_date DESC;';
 
 $result_lots = handle_query($connect, $sql_get_lots);
 
-$goods = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
+$lots = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
 
 $page_content = include_template('main.php',
     [
-        'goods' => $goods,
+        'lots' => $lots,
         'categories' => $categories,
         'categories_content' => $categories_content
     ]

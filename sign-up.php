@@ -15,24 +15,27 @@ $categories_content  = include_template('categories.php',
 $title = 'Регистрация';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $form = $_POST;
     $errors = [];
 
     $user = filter_input_array(INPUT_POST, [
         'email' => FILTER_DEFAULT,
         'name' => FILTER_DEFAULT,
         'password' => FILTER_DEFAULT,
-        'contacts' => FILTER_DEFAULT,
+        'message' => FILTER_DEFAULT,
     ], true);
 
+    foreach ($user as &$item) {
+        $item = trim($item);
+    }
+
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled(trim($value));
+        $errors[$key] = validateFilled($value);
     }
 
     $errors = array_filter($errors);
 
     if (!count($errors)) {
-        $email = mysqli_real_escape_string($connect, $form['email']);
+        $email = mysqli_real_escape_string($connect, $user['email']);
         $sql = "SELECT id FROM users WHERE email = '$email'";
         $res = mysqli_query($connect, $sql);
 
@@ -43,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $password = password_hash($form['password'], PASSWORD_DEFAULT);
             $sql = 'INSERT INTO users (email, name, password, contacts) VALUES (?, ?, ? ,?)';
-            $res = mysqli_stmt_execute(db_get_prepare_stmt($connect, $sql, $email, $form['name'], $password, $form['message']));
+            $res = mysqli_stmt_execute(db_get_prepare_stmt($connect, $sql, [$email, $user['name'], $password, $user['message']]));
         }
 
         if ($res && !count($errors)) {

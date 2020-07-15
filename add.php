@@ -43,8 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'lot-date' => FILTER_DEFAULT
         ], true);
 
+    foreach ($lot as &$item) {
+        $item = trim($item);
+    }
+
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled(trim($value));
+        $errors[$key] = validateFilled($value);
         if (isset($rules[$key])) {
             $rule = $rules[$key];
             $errors[$key] = $rule($value);

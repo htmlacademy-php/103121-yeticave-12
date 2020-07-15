@@ -26,11 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ], true);
 
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled($value);
-        if (isset($rules[$key])) {
-            $rule = $rules[$key];
-            $errors[$key] = $rule($value);
-        }
+        $errors[$key] = validateFilled(trim($value));
     }
 
     $errors = array_filter($errors);
@@ -49,11 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sql = 'INSERT INTO users (email, name, password, contacts) VALUES (?, ?, ? ,?)';
             $res = mysqli_stmt_execute(db_get_prepare_stmt($connect, $sql, $email, $form['name'], $password, $form['message']));
         }
-    }
 
-    if ($res && !count($errors)) {
-        header('Location: index.php');
-        exit();
+        if ($res && !count($errors)) {
+            header('Location: index.php');
+            exit();
+        }
     }
 }
 

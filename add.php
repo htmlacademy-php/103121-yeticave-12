@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ], true);
 
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled($value);
+        $errors[$key] = validateFilled(trim($value));
         if (isset($rules[$key])) {
             $rule = $rules[$key];
             $errors[$key] = $rule($value);

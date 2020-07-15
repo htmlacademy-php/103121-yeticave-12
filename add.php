@@ -17,7 +17,6 @@ $categories_content  = include_template('categories.php',
 $title = 'Добавление лота';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $required_fields = ['lot-name'];
     $errors = [];
 
     $rules = [
@@ -43,6 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'lot-step' => FILTER_DEFAULT,
             'lot-date' => FILTER_DEFAULT
         ], true);
+
+    foreach ($lot as &$item) {
+        $item = trim($item);
+    }
 
     foreach ($_POST as $key => $value) {
         $errors[$key] = validateFilled($value);

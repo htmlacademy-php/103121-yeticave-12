@@ -1,7 +1,6 @@
 <?php
 require_once('helpers.php');
 require_once('init.php');
-require_once('auth.php');
 
 $title = 'Yeti-cave';
 
@@ -41,8 +40,6 @@ $page_content = include_template('main.php',
 $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
-        'is_auth' => $is_auth,
-        'user_name' => $user_name,
         'title' => $title,
         'categories' => $categories
     ]

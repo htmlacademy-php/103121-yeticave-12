@@ -1,8 +1,12 @@
 <?php
-require_once('auth.php');
 require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
+
+if (!isset($_SESSION['user'])) {
+    http_response_code(403);
+    exit();
+}
 
 $categories = getCategories($connect);
 
@@ -79,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!count($errors)) {
-        $sql = 'INSERT INTO lots (author_id, name, category_id, description, start_price, bet_step, finish_date, image) VALUES (1, ?, ?, ?, ?, ?, ?, ?)';
+        $sql = "INSERT INTO lots (author_id, name, category_id, description, start_price, bet_step, finish_date, image) VALUES (" . $_SESSION['user']['id'] . ", ?, ?, ?, ?, ?, ?, ?)";
         $res = mysqli_stmt_execute(db_get_prepare_stmt($connect, $sql, $lot));
 
         if ($res) {
@@ -99,8 +103,6 @@ $page_content = include_template('add.php',
 $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
-        'is_auth' => $is_auth,
-        'user_name' => $user_name,
         'title' => $title,
         'categories' => $categories
     ]

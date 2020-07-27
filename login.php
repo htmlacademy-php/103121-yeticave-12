@@ -3,11 +3,6 @@ require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
 
-if (!isset($_SESSION['user'])) {
-    http_response_code(403);
-    exit();
-}
-
 $categories = getCategories($connect);
 
 $categories_content  = include_template('categories.php',
@@ -16,16 +11,14 @@ $categories_content  = include_template('categories.php',
     ]
 );
 
-$title = 'Регистрация';
+$title = 'Авторизация';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
 
     $user = filter_input_array(INPUT_POST, [
         'email' => FILTER_DEFAULT,
-        'name' => FILTER_DEFAULT,
-        'password' => FILTER_DEFAULT,
-        'message' => FILTER_DEFAULT,
+        'password' => FILTER_DEFAULT
     ], true);
 
     foreach ($user as &$item) {
@@ -40,17 +33,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!count($errors)) {
         $email = mysqli_real_escape_string($connect, $user['email']);
-        $sql = "SELECT id FROM users WHERE email = '$email'";
+        $sql = "SELECT * FROM users WHERE email = '$email'";
         $res = mysqli_query($connect, $sql);
+
+        $user_db = $res ? mysqli_fetch_array($res, MYSQLI_ASSOC) : null;
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Некорректный email';
-        } else if (mysqli_num_rows($res) > 0) {
-            $errors['email'] = 'Пользователь с этим email уже зарегистрирован';
+        } else if ($user_db) {
+            password_verify($user['password'], $user_db['password']) ?
+                $_SESSION['user'] = $user_db :
+                $errors['password'] = 'Неверный пароль';
         } else {
-            $password = password_hash($user['password'], PASSWORD_DEFAULT);
-            $sql = 'INSERT INTO users (email, name, password, contacts) VALUES (?, ?, ? ,?)';
-            $res = mysqli_stmt_execute(db_get_prepare_stmt($connect, $sql, [$email, $user['name'], $password, $user['message']]));
+            $errors['email'] = 'Такой пользователь не найден';
         }
 
         if (!count($errors)) {
@@ -58,9 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
     }
+} else if (isset($_SESSION['user'])) {
+    header("Location: /index.php");
+    exit();
 }
 
-$page_content = include_template('sign-up.php',
+$page_content = include_template('login.php',
     [
         'categories_content' => $categories_content,
         'categories' => $categories,

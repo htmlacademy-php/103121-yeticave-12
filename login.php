@@ -11,9 +11,10 @@ $categories_content  = include_template('categories.php',
     ]
 );
 
-$title = 'Авторизация';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (isset($_SESSION['user'])) {
+    header("Location: /index.php");
+    exit();
+} else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
 
     $user = filter_input_array(INPUT_POST, [
@@ -29,6 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[$key] = validateFilled($value);
     }
 
+    if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = 'Некорректный email';
+    }
+
     $errors = array_filter($errors);
 
     if (!count($errors)) {
@@ -38,9 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $user_db = $res ? mysqli_fetch_array($res, MYSQLI_ASSOC) : null;
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Некорректный email';
-        } else if ($user_db) {
+        if ($user_db) {
             password_verify($user['password'], $user_db['password']) ?
                 $_SESSION['user'] = $user_db :
                 $errors['password'] = 'Неверный пароль';
@@ -53,9 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
     }
-} else if (isset($_SESSION['user'])) {
-    header("Location: /index.php");
-    exit();
 }
 
 $page_content = include_template('login.php',
@@ -69,7 +69,7 @@ $page_content = include_template('login.php',
 $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
-        'title' => $title,
+        'title' => 'Авторизация',
         'categories' => $categories
     ]
 );

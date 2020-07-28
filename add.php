@@ -18,8 +18,6 @@ $categories_content  = include_template('categories.php',
     ]
 );
 
-$title = 'Добавление лота';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
 
@@ -103,7 +101,7 @@ $page_content = include_template('add.php',
 $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
-        'title' => $title,
+        'title' => 'Добавление лота',
         'categories' => $categories
     ]
 );

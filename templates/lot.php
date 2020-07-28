@@ -13,17 +13,17 @@
             <div class="lot-item__right">
                 <div class="lot-item__state">
                     <div class="lot-item__timer timer
-                        <?= get_time_range(htmlspecialchars($lot['finish_date'], ENT_QUOTES))[0] >= 1
+                        <?= get_time_range($lot['finish_date'])[0] >= 1
                             ? ''
                             : 'timer--finishing';
                         ?>
                     ">
-                        <?= implode(':' ,get_time_range(htmlspecialchars($lot['finish_date'], ENT_QUOTES))); ?>
+                        <?= implode(':' ,get_time_range($lot['finish_date'])); ?>
                     </div>
                     <div class="lot-item__cost-state">
                         <div class="lot-item__rate">
                             <span class="lot-item__amount">Текущая цена</span>
-                            <span class="lot-item__cost"><?= format_price(htmlspecialchars($lot['price'], ENT_QUOTES)); ?></span>
+                            <span class="lot-item__cost"><?= format_price($lot['price']); ?></span>
                         </div>
                         <div class="lot-item__min-cost">
                         Мин. ставка <span><?= format_price(htmlspecialchars($lot['bet_step'], ENT_QUOTES)); ?></span>

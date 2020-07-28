@@ -26,7 +26,7 @@
                     <div class="lot__state">
                         <div class="lot__rate">
                             <span class="lot__amount">Стартовая цена</span>
-                            <span class="lot__cost"><?= format_price(htmlspecialchars($lot['price'], ENT_QUOTES)); ?></span>
+                            <span class="lot__cost"><?= format_price($lot['price']); ?></span>
                         </div>
                         <div class="lot__timer timer
                             <?= get_time_range($lot['finish_date'])[0] >= 1
@@ -34,7 +34,7 @@
                                 : 'timer--finishing';
                             ?>
                         ">
-                            <?= htmlspecialchars(implode(':' ,get_time_range($lot['finish_date'])), ENT_QUOTES); ?>
+                            <?= implode(':' ,get_time_range($lot['finish_date'])); ?>
                         </div>
                     </div>
                 </div>

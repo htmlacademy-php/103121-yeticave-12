@@ -2,8 +2,6 @@
 require_once('helpers.php');
 require_once('init.php');
 
-$title = 'Yeti-cave';
-
 $categories = getCategories($connect);
 
 $categories_content  = include_template('categories.php',
@@ -40,7 +38,7 @@ $page_content = include_template('main.php',
 $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
-        'title' => $title,
+        'title' => 'Yeti-cave',
         'categories' => $categories
     ]
 );

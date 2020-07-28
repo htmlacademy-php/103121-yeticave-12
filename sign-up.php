@@ -3,7 +3,7 @@ require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
 
-if (!isset($_SESSION['user'])) {
+if (isset($_SESSION['user'])) {
     http_response_code(403);
     exit();
 }
@@ -15,8 +15,6 @@ $categories_content  = include_template('categories.php',
         'categories' => $categories
     ]
 );
-
-$title = 'Регистрация';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
@@ -36,6 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[$key] = validateFilled($value);
     }
 
+    if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = 'Некорректный email';
+    }
+
     $errors = array_filter($errors);
 
     if (!count($errors)) {
@@ -43,9 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "SELECT id FROM users WHERE email = '$email'";
         $res = mysqli_query($connect, $sql);
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Некорректный email';
-        } else if (mysqli_num_rows($res) > 0) {
+        if (mysqli_num_rows($res) > 0) {
             $errors['email'] = 'Пользователь с этим email уже зарегистрирован';
         } else {
             $password = password_hash($user['password'], PASSWORD_DEFAULT);
@@ -71,7 +71,7 @@ $page_content = include_template('sign-up.php',
 $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
-        'title' => $title,
+        'title' => 'Регистрация',
         'categories' => $categories
     ]
 );

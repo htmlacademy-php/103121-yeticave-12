@@ -1,2 +1,2 @@
 <?php
-$forbidden_error = 403;
+define('FORBIDDEN_ERROR', 403);

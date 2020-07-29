@@ -1,6 +1,5 @@
 
 <?php
-require_once('auth.php');
 require_once('helpers.php');
 require_once('init.php');
 
@@ -50,10 +49,9 @@ if (!mysqli_num_rows($result_lot)) {
 $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
-        'is_auth' => $is_auth,
-        'user_name' => $user_name,
         'title' => $title,
-        'categories' => $categories
+        'categories' => $categories,
+        'user' => $_SESSION['user'] ?? null
     ]
 );
 

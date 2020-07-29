@@ -2,9 +2,10 @@
 require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
+require_once('const.php');
 
 if (!isset($_SESSION['user'])) {
-    http_response_code(403);
+    http_response_code($forbidden_error);
     exit();
 }
 
@@ -102,7 +103,8 @@ $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
         'title' => 'Добавление лота',
-        'categories' => $categories
+        'categories' => $categories,
+        'user' => $_SESSION['user'] ?? null
     ]
 );
 

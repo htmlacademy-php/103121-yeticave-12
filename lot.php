@@ -50,7 +50,8 @@ $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
         'title' => $title,
-        'categories' => $categories
+        'categories' => $categories,
+        'user' => $_SESSION['user'] ?? null
     ]
 );
 

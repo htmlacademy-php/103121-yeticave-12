@@ -44,3 +44,5 @@ CREATE TABLE users (
 CREATE INDEX category_index ON categories(name);
 
 CREATE INDEX lot_index ON lots(name);
+
+CREATE FULLTEXT INDEX lot_fulltext_index ON lots(name, description);

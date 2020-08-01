@@ -14,19 +14,19 @@ $search = $_GET['search'] ?? null;
 
 if ($search) {
     $current_page = $_GET['page'] ?? 1;
-    $page_items = 1;
+    $page_items = 9;
 
     $offset = ($current_page - 1) * $page_items;
+
+    $search_escaped = mysqli_real_escape_string($connect, $search);
 
     $sql = 'SELECT COUNT(l.id) AS cnt
         FROM lots l
         WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
-        AND MATCH(l.name, l.description) AGAINST(?)
+        AND MATCH(l.name, l.description) AGAINST("' . $search_escaped . '*" IN BOOLEAN MODE)
         ORDER BY l.start_date DESC';
 
-    $stmt = db_get_prepare_stmt($connect, $sql, [$search]);
-    mysqli_stmt_execute($stmt);
-    $items_count = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt))['cnt'];
+    $items_count = mysqli_fetch_assoc(mysqli_query($connect, $sql))['cnt'];
 
     $pages_count = ceil($items_count / $page_items);
     $pages = range(1, $pages_count);
@@ -42,25 +42,28 @@ if ($search) {
         LEFT JOIN bets b ON l.id = b.lot_id
         JOIN categories c ON l.category_id = c.id
         WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
-        AND MATCH(l.name, l.description) AGAINST(?)
+        AND MATCH(l.name, l.description) AGAINST("' . $search_escaped . '*" IN BOOLEAN MODE)
         ORDER BY l.start_date DESC LIMIT ' . $page_items . ' OFFSET ' . $offset;
 
-    $stmt = db_get_prepare_stmt($connect, $sql, [$search]);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-
-    $lots = mysqli_fetch_all($res, MYSQLI_ASSOC);
+    $lots = mysqli_fetch_all(mysqli_query($connect, $sql), MYSQLI_ASSOC);
 }
+
+$pagination_content = include_template('pagination.php',
+    [
+        'pages' => $pages ?? null,
+        'pages_count' => $pages_count ?? null,
+        'current_page' => (int)$current_page ?? null,
+        'search' => $search
+    ]
+);
 
 $page_content = include_template('search.php',
     [
         'categories_content' => $categories_content,
+        'pagination_content' => $pagination_content,
         'categories' => $categories,
         'search' => $search,
-        'lots' => $lots ?? null,
-        'pages' => $pages ?? null,
-        'pages_count' => $pages_count ?? null,
-        'current_page' => (int)$current_page ?? null
+        'lots' => $lots ?? null
     ]
 );
 

@@ -29,17 +29,31 @@
                         Мин. ставка <span><?= format_price(htmlspecialchars($lot['bet_step'], ENT_QUOTES)); ?></span>
                         </div>
                     </div>
-                    <?php if (isset($_SESSION['user'])): ?>
-                        <form class="lot-item__form" action="https://echo.htmlacademy.ru" method="post" autocomplete="off">
-                            <p class="lot-item__form-item form__item">
+                    <?php if ((isset($_SESSION['user'])) && (!($_SESSION['user']['id'] === $lot['author_id']))): ?>
+                        <form class="lot-item__form" action="lot.php?id=<?= $lot['id']?>" method="post" autocomplete="off">
+                            <p class="lot-item__form-item form__item <?= isset($errors['cost']) ? 'form__item--invalid' : ''; ?>">
                                 <label for="cost">Ваша ставка</label>
-                                <input id="cost" type="text" name="cost" placeholder="">
-                                <span class="form__error"></span>
+                                <input id="cost" type="text" name="cost" value="<?= isset($errors['cost']) ? htmlspecialchars(getPostVal('cost', ENT_QUOTES)) : ''; ?>">
+                                <span class="form__error"><?= $errors['cost'] ?? '' ?></span>
                             </p>
                             <button type="submit" class="button">Сделать ставку</button>
                         </form>
                     <?php endif ?>
                 </div>
+                <?php if ($lot_bets): ?>
+                    <div class="history">
+                        <h3>История ставок (<span><?= count($lot_bets) ?></span>)</h3>
+                        <table class="history__list">
+                            <?php foreach ($lot_bets as $lot_bet): ?>
+                                <tr class="history__item">
+                                    <td class="history__name"><?= htmlspecialchars($lot_bet['name'], ENT_QUOTES) ?></td>
+                                    <td class="history__price"><?= format_price(htmlspecialchars($lot_bet['price'], ENT_QUOTES)); ?></td>
+                                    <td class="history__time"><?= getTimePassed($lot_bet['date']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    </div>
+                <?php endif ?>
             </div>
         </div>
     </section>

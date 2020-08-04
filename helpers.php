@@ -219,3 +219,67 @@ function getCategories(mysqli $connect) {
     return mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
 }
 
+/**
+ * @param object $connect
+ * @param int $lot_id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mixed
+ */
+
+function getLotBets(mysqli $connect, int $lot_id) {
+    $sql_get_lot_bets = "SELECT u.name, b.price, b.date FROM bets b JOIN users u ON u.id = b.user_id WHERE b.lot_id = '$lot_id' ORDER BY b.date DESC;";
+    $result_lot_bets = handle_query($connect, $sql_get_lot_bets);
+    return mysqli_fetch_all($result_lot_bets, MYSQLI_ASSOC);
+}
+
+/**
+ * @param object $connect
+ * @param int $user_id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mixed
+ */
+
+function getUserBets(mysqli $connect, int $user_id) {
+    $sql_get_user_bets = "SELECT l.id, l.name AS lot_name, l.image, c.name AS category_name, l.finish_date, u.contacts, MAX(b.price) AS bet_price, MAX(b.date) AS bet_date
+        FROM bets b
+        JOIN users u ON u.id = b.user_id
+        JOIN lots l ON b.lot_id = l.id
+        JOIN categories c ON c.id = l.category_id
+        WHERE u.id = '$user_id'
+        GROUP BY 1,2,3,4,5";
+    $result_user_bets = handle_query($connect, $sql_get_user_bets);
+    return mysqli_fetch_all($result_user_bets, MYSQLI_ASSOC);
+}
+
+/**
+ * @param string $date
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string
+ */
+
+function getTimePassed(string $date) {
+    $bet_time = strtotime($date);
+    $time_passed = time() - strtotime($date);
+    $hours = floor($time_passed / 3600);
+    $minutes = floor(($time_passed % 3600) / 60);
+    switch (true) {
+        case (($hours < 1) && ($minutes < 1)):
+            return 'Сейчас';
+
+        case ($hours < 1):
+            return $minutes . ' ' . get_noun_plural_form($minutes, 'минута', 'минуты', 'минут') . ' назад';
+
+        case ($hours < 23):
+            return $hours . ' ' . get_noun_plural_form($hours, 'час', 'часа', 'часов') . ' назад';
+
+        default:
+            return date('d.m.y', $bet_time) . ' в ' . date('H:i', $bet_time);
+    }
+}
+

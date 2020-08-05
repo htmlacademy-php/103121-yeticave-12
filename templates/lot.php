@@ -26,10 +26,14 @@
                             <span class="lot-item__cost"><?= format_price($lot['price']); ?></span>
                         </div>
                         <div class="lot-item__min-cost">
-                        Мин. ставка <span><?= format_price(htmlspecialchars($lot['bet_step'], ENT_QUOTES)); ?></span>
+                        Мин. ставка <span><?= format_price($lot['bet_step'] + $lot['price']); ?></span>
                         </div>
                     </div>
-                    <?php if ((isset($_SESSION['user'])) && (!($_SESSION['user']['id'] === $lot['author_id']))): ?>
+                    <?php if ((isset($_SESSION['user']))
+                            && ($_SESSION['user']['id'] !== $lot['author_id'])
+                            && ($_SESSION['user']['id'] !== $lot['bet_author_id'])
+                            && (strtotime($lot['finish_date']) > time()))
+                    :?>
                         <form class="lot-item__form" action="lot.php?id=<?= $lot['id']?>" method="post" autocomplete="off">
                             <p class="lot-item__form-item form__item <?= isset($errors['cost']) ? 'form__item--invalid' : ''; ?>">
                                 <label for="cost">Ваша ставка</label>
@@ -47,7 +51,7 @@
                             <?php foreach ($lot_bets as $lot_bet): ?>
                                 <tr class="history__item">
                                     <td class="history__name"><?= htmlspecialchars($lot_bet['name'], ENT_QUOTES) ?></td>
-                                    <td class="history__price"><?= format_price(htmlspecialchars($lot_bet['price'], ENT_QUOTES)); ?></td>
+                                    <td class="history__price"><?= format_price($lot_bet['price']); ?></td>
                                     <td class="history__time"><?= getTimePassed($lot_bet['date']) ?></td>
                                 </tr>
                             <?php endforeach; ?>

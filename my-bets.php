@@ -1,6 +1,7 @@
 <?php
 require_once('helpers.php');
 require_once('init.php');
+require_once('const.php');
 
 if (!isset($_SESSION['user'])) {
     http_response_code(FORBIDDEN_ERROR);

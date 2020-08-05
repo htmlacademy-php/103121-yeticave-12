@@ -14,20 +14,7 @@ $categories_content  = include_template('categories.php',
 
 $id  = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
-$sql_get_lot = 'SELECT l.name AS lot_name,
-l.id,
-c.name AS category_name,
-l.image,
-l.description,
-MAX(IFNULL(b.price, l.start_price)) AS price,
-l.finish_date,
-l.bet_step,
-l.author_id
-FROM lots l JOIN categories c ON l.category_id = c.id
-LEFT JOIN bets b ON l.id = b.lot_id
-WHERE l.id = ' . $id;
-
-$result_lot = handle_query($connect, $sql_get_lot);
+$result_lot = getLot($connect, $id);
 
 if (!mysqli_num_rows($result_lot)) {
     http_response_code(404);

@@ -70,7 +70,7 @@ function validateDate(?string $value) {
 function validateBet($value, $price, $bet_step) {
     if ($value <= 0) {
         return 'В этом поле должно быть целое положительное число';
-    } else if (!($value > ($price + $bet_step))) {
+    } else if ($value < ($price + $bet_step)) {
         return 'Ставка должна быть больше, чем текущая цена лота + шаг ставки';
     }
 

@@ -1,4 +1,5 @@
 <?php
+require_once('const.php');
 /**
  * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'
  *
@@ -144,7 +145,7 @@ function include_template($name, array $data = []) {
 }
 
 /**
- * @param object $connect
+ * @param mysqli $connect
  * @param string $sql
  *
  * @author Trikashnyi Artem tema-luch@mail.ru
@@ -187,8 +188,8 @@ function format_price(float $old_price) {
 
 function get_time_range(string $date) {
     $time_difference = strtotime($date) - time();
-    $hours_count = floor($time_difference / 3600);
-    $minutes_count = floor(($time_difference % 3600) / 60);
+    $hours_count = floor($time_difference / SECONDS_IN_HOUR);
+    $minutes_count = floor(($time_difference % SECONDS_IN_HOUR) / SECONDS_IN_MINUTE);
 
     return [$hours_count, $minutes_count];
 }
@@ -206,7 +207,7 @@ function getPostVal(string $name) {
 }
 
 /**
- * @param object $connect
+ * @param mysqli $connect
  *
  * @author Trikashnyi Artem tema-luch@mail.ru
  *
@@ -217,5 +218,86 @@ function getCategories(mysqli $connect) {
     $sql_get_categories = 'SELECT * FROM categories;';
     $result_categories = handle_query($connect, $sql_get_categories);
     return mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
+}
+
+/**
+ * @param mysqli $connect
+ * @param int $lot_id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mixed
+ */
+
+function getLotBets(mysqli $connect, int $lot_id) {
+    $sql_get_lot_bets = "SELECT u.name, b.price, b.date FROM bets b JOIN users u ON u.id = b.user_id WHERE b.lot_id = '$lot_id' ORDER BY b.date DESC;";
+    $result_lot_bets = handle_query($connect, $sql_get_lot_bets);
+    return mysqli_fetch_all($result_lot_bets, MYSQLI_ASSOC);
+}
+
+/**
+ * @param mysqli $connect
+ * @param int $user_id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mixed
+ */
+
+function getUserBets(mysqli $connect, int $user_id) {
+    $sql_get_user_bets = "SELECT l.id, l.name AS lot_name, l.image, c.name AS category_name, l.finish_date, u.contacts, MAX(b.price) AS bet_price, MAX(b.date) AS bet_date
+        FROM bets b
+        JOIN users u ON u.id = b.user_id
+        JOIN lots l ON b.lot_id = l.id
+        JOIN categories c ON c.id = l.category_id
+        WHERE u.id = '$user_id'
+        GROUP BY l.id";
+    $result_user_bets = handle_query($connect, $sql_get_user_bets);
+    return mysqli_fetch_all($result_user_bets, MYSQLI_ASSOC);
+}
+
+function getLot(mysqli $connect, $id) {
+    $sql_get_lot = "SELECT l.name AS lot_name,
+        l.id,
+        c.name AS category_name,
+        l.image,
+        l.description,
+        MAX(IFNULL(b.price, l.start_price)) AS price,
+        l.finish_date,
+        l.bet_step,
+        l.author_id,
+        (SELECT user_id FROM bets WHERE date = (SELECT MAX(date) FROM bets b JOIN lots l ON l.id = b.lot_id WHERE l.id = '$id')) AS bet_author_id
+        FROM lots l JOIN categories c ON l.category_id = c.id
+        LEFT JOIN bets b ON l.id = b.lot_id
+        WHERE l.id = '$id'";
+    return handle_query($connect, $sql_get_lot);
+}
+
+/**
+ * @param string $date
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string
+ */
+
+function getTimePassed(string $date) {
+    $time_passed = time() - strtotime($date);
+    $hours = floor($time_passed / SECONDS_IN_HOUR);
+    $minutes = floor(($time_passed % SECONDS_IN_MINUTE) / 60);
+    switch (true) {
+        case (($hours < 1) && ($minutes < 1)):
+            return 'Сейчас';
+
+        case ($hours < 1):
+            return $minutes . ' ' . get_noun_plural_form($minutes, 'минута', 'минуты', 'минут') . ' назад';
+
+        case ($hours < 23):
+            return $hours . ' ' . get_noun_plural_form($hours, 'час', 'часа', 'часов') . ' назад';
+
+        default:
+            $bet_time = strtotime($date);
+            return date('d.m.y', $bet_time) . ' в ' . date('H:i', $bet_time);
+    }
 }
 

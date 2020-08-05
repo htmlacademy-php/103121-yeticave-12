@@ -14,13 +14,14 @@ $sql_get_lots = 'SELECT l.id,
 l.name,
 l.start_price,
 l.image,
-IFNULL(b.price, l.start_price) AS price,
+MAX(IFNULL(b.price, l.start_price)) AS price,
 c.name AS category,
 l.finish_date
 FROM lots l
 LEFT JOIN bets b ON l.id = b.lot_id
 JOIN categories c ON l.category_id = c.id
 WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+GROUP BY l.id
 ORDER BY l.start_date DESC;';
 
 $result_lots = handle_query($connect, $sql_get_lots);

@@ -302,10 +302,11 @@ function getTimePassed(string $date) {
 }
 
 function getLotsWithoutWinner(mysqli $connect) {
-    $sql_get_lots_without_winner = "SELECT id, name, finish_date, winner_id
-        FROM lots
-        WHERE winner_id is NULL
-        AND finish_date <= current_timestamp()";
+    $sql_get_lots_without_winner = "SELECT l.id, l.name, l.finish_date, l.winner_id
+        FROM lots l
+        JOIN bets b ON l.id = b.lot_id
+        WHERE l.winner_id is NULL
+        AND l.finish_date <= current_timestamp()";
     return handle_query($connect, $sql_get_lots_without_winner);
 }
 

@@ -1,0 +1,12 @@
+{
+    "name": "artem.trikashny/yeti-cave",
+    "authors": [
+        {
+            "name": "artytrik",
+            "email": "tema-luch@mail.ru"
+        }
+    ],
+    "require": {
+        "swiftmailer/swiftmailer": "^6.2"
+    }
+}

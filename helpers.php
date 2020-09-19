@@ -301,3 +301,23 @@ function getTimePassed(string $date) {
     }
 }
 
+function getLotsWithoutWinner(mysqli $connect) {
+    $sql_get_lots_without_winner = "SELECT id, name, finish_date, winner_id
+        FROM lots
+        WHERE winner_id is NULL
+        AND finish_date <= current_timestamp()";
+    return handle_query($connect, $sql_get_lots_without_winner);
+}
+
+function getWinner(mysqli $connect, $lot_id) {
+    $sql_get_winner = "SELECT user_id
+        FROM bets
+        WHERE price = (
+            SELECT MAX(b.price)
+            FROM bets b
+            JOIN lots l ON l.id = b.lot_id
+            WHERE l.id = '$lot_id'
+        )";
+    return handle_query($connect, $sql_get_winner);
+}
+

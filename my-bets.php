@@ -8,7 +8,7 @@ if (!isset($_SESSION['user'])) {
     exit();
 }
 
-$categories = getCategories($connect);
+$categories = get_categories($connect);
 
 $categories_content  = include_template('categories.php',
     [
@@ -16,7 +16,7 @@ $categories_content  = include_template('categories.php',
     ]
 );
 
-$bets = getUserBets($connect, $_SESSION['user']['id']);
+$bets = get_user_bets($connect, $_SESSION['user']['id']);
 
 $page_content = include_template('my-bets.php',
     [

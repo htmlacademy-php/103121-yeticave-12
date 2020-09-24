@@ -9,7 +9,7 @@ if (!isset($_SESSION['user'])) {
     exit();
 }
 
-$categories = getCategories($connect);
+$categories = get_categories($connect);
 
 $categories_ids = array_column($categories, 'id');
 
@@ -24,16 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $rules = [
         'category' => function($value) use ($categories_ids) {
-            return validateCategory($value, $categories_ids);
+            return validate_category($value, $categories_ids);
         },
         'lot-step' => function($value) {
-            return validateInt((int)$value);
+            return validate_int((int)$value);
         },
         'lot-rate' => function($value) {
-            return validateFloat((float)$value);
+            return validate_float((float)$value);
         },
         'lot-date' => function($value) {
-            return validateDate($value);
+            return validate_date($value);
         }
     ];
 
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled($value);
+        $errors[$key] = validate_filled($value);
         if (isset($rules[$key])) {
             $rule = $rules[$key];
             $errors[$key] = $rule($value);

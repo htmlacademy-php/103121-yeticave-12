@@ -202,7 +202,7 @@ function get_time_range(string $date) {
  * @return string
  */
 
-function getPostVal(string $name) {
+function get_post_val(string $name) {
     return filter_input(INPUT_POST, $name);
 }
 
@@ -214,7 +214,7 @@ function getPostVal(string $name) {
  * @return mixed
  */
 
-function getCategories(mysqli $connect) {
+function get_categories(mysqli $connect) {
     $sql_get_categories = 'SELECT * FROM categories;';
     $result_categories = handle_query($connect, $sql_get_categories);
     return mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
@@ -229,7 +229,7 @@ function getCategories(mysqli $connect) {
  * @return mixed
  */
 
-function getLotBets(mysqli $connect, int $lot_id) {
+function get_lot_bets(mysqli $connect, int $lot_id) {
     $sql_get_lot_bets = "SELECT u.name, b.price, b.date FROM bets b JOIN users u ON u.id = b.user_id WHERE b.lot_id = '$lot_id' ORDER BY b.date DESC;";
     $result_lot_bets = handle_query($connect, $sql_get_lot_bets);
     return mysqli_fetch_all($result_lot_bets, MYSQLI_ASSOC);
@@ -244,7 +244,7 @@ function getLotBets(mysqli $connect, int $lot_id) {
  * @return mixed
  */
 
-function getUserBets(mysqli $connect, int $user_id) {
+function get_user_bets(mysqli $connect, int $user_id) {
     $sql_get_user_bets = "SELECT l.id, l.name AS lot_name, l.image, c.name AS category_name, l.finish_date, u.contacts, MAX(b.price) AS bet_price, MAX(b.date) AS bet_date
         FROM bets b
         JOIN users u ON u.id = b.user_id
@@ -256,7 +256,7 @@ function getUserBets(mysqli $connect, int $user_id) {
     return mysqli_fetch_all($result_user_bets, MYSQLI_ASSOC);
 }
 
-function getLot(mysqli $connect, $id) {
+function get_lot(mysqli $connect, $id) {
     $sql_get_lot = "SELECT l.name AS lot_name,
         l.id,
         c.name AS category_name,
@@ -281,7 +281,7 @@ function getLot(mysqli $connect, $id) {
  * @return string
  */
 
-function getTimePassed(string $date) {
+function get_time_passed(string $date) {
     $time_passed = time() - strtotime($date);
     $hours = floor($time_passed / SECONDS_IN_HOUR);
     $minutes = floor(($time_passed % SECONDS_IN_MINUTE) / 60);
@@ -301,7 +301,7 @@ function getTimePassed(string $date) {
     }
 }
 
-function getLotsWithoutWinner(mysqli $connect) {
+function get_lots_without_winner(mysqli $connect) {
     $sql_get_lots_without_winner = "SELECT DISTINCT l.id, l.name, l.finish_date, l.winner_id
         FROM lots l
         JOIN bets b ON l.id = b.lot_id
@@ -310,7 +310,7 @@ function getLotsWithoutWinner(mysqli $connect) {
     return handle_query($connect, $sql_get_lots_without_winner);
 }
 
-function getWinner(mysqli $connect, $lot_id) {
+function get_winner(mysqli $connect, $lot_id) {
     $sql_get_winner = "SELECT user_id
         FROM bets
         WHERE price = (
@@ -322,16 +322,16 @@ function getWinner(mysqli $connect, $lot_id) {
     return handle_query($connect, $sql_get_winner);
 }
 
-function getCategoryById(mysqli $connect, $category_id) {
+function get_category_by_id(mysqli $connect, $category_id) {
     $sql_get_category = "SELECT name FROM categories WHERE id = $category_id";
     return handle_query($connect, $sql_get_category);
 }
 
-function getPagination($connect, $currentPage, $search, $type) {
+function get_pagination($connect, $currentPage, $search, $type) {
     $current_page = $_GET['page'] ?? 1;
     $offset = ($current_page - 1) * ITEMS_ON_PAGE;
     $search_escaped = mysqli_real_escape_string($connect, $search);
-    $sql = getPaginationSql($type, $search_escaped);
+    $sql = get_pagination_sql($type, $search_escaped);
     $items_count = mysqli_fetch_assoc(mysqli_query($connect, $sql))['cnt'];
     $pages_count = ceil($items_count / ITEMS_ON_PAGE);
     $pages = range(1, $pages_count);
@@ -344,7 +344,7 @@ function getPagination($connect, $currentPage, $search, $type) {
     ];
 }
 
-function getPaginationSql($type, $search_escaped) {
+function get_pagination_sql($type, $search_escaped) {
     switch ($type) {
         case 'search':
             return "SELECT COUNT(l.id) AS cnt
@@ -361,12 +361,12 @@ function getPaginationSql($type, $search_escaped) {
     }
 }
 
-function getLotsBySearch($connect, $type, $search_escaped, $offset) {
-    $sql = getLotsBySearchSql($type, $search_escaped, $offset);
+function get_lots_by_search($connect, $type, $search_escaped, $offset) {
+    $sql = get_lots_by_search_sql($type, $search_escaped, $offset);
     return mysqli_fetch_all(mysqli_query($connect, $sql), MYSQLI_ASSOC);
 }
 
-function getLotsBySearchSql($type, $search_escaped, $offset) {
+function get_lots_by_search_sql($type, $search_escaped, $offset) {
     switch ($type) {
         case 'search':
             return "SELECT l.id,

@@ -2,7 +2,7 @@
 require_once('helpers.php');
 require_once('init.php');
 
-$categories = getCategories($connect);
+$categories = get_categories($connect);
 
 $categories_content  = include_template('categories.php',
     [
@@ -16,10 +16,10 @@ $type = 'category';
 if ($category) {
     $current_page = $_GET['page'] ?? 1;
 
-    $pagination = getPagination($connect, $current_page, $category, $type);
+    $pagination = get_pagination($connect, $current_page, $category, $type);
 
-    $lots = getLotsBySearch($connect, $type, $pagination['search_escaped'], $pagination['offset']);
-    $category_name = mysqli_fetch_assoc(getCategoryById($connect, $category));
+    $lots = get_lots_by_search($connect, $type, $pagination['search_escaped'], $pagination['offset']);
+    $category_name = mysqli_fetch_assoc(get_category_by_id($connect, $category));
 }
 
 $pagination_content = include_template('pagination.php',

@@ -27,7 +27,7 @@
                             <?= format_price($bet['bet_price']) ?>
                         </td>
                         <td class="rates__time">
-                            <?= getTimePassed($bet['bet_date']) ?>
+                            <?= get_time_passed($bet['bet_date']) ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

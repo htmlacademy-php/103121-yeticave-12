@@ -3,7 +3,7 @@ require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
 
-$categories = getCategories($connect);
+$categories = get_categories($connect);
 
 $categories_content  = include_template('categories.php',
     [
@@ -27,7 +27,7 @@ if (isset($_SESSION['user'])) {
     }
 
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled($value);
+        $errors[$key] = validate_filled($value);
     }
 
     if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {

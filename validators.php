@@ -8,7 +8,7 @@
  * @return string|null
  */
 
-function validateFilled(string $name) {
+function validate_filled(string $name) {
     return (empty($name)) ? 'Это поле должно быть заполнено' : null;
 }
 
@@ -20,7 +20,7 @@ function validateFilled(string $name) {
  * @return string|null
  */
 
-function validateInt(int $value) {
+function validate_int(int $value) {
     return ($value <= 0) ? 'В этом поле должно быть целое положительное число' : null;
 }
 
@@ -32,7 +32,7 @@ function validateInt(int $value) {
  * @return string|null
  */
 
-function validateFloat(float $value) {
+function validate_float(float $value) {
     return ($value <= 0) ? 'В этом поле должно быть положительное число' : null;
 }
 
@@ -45,7 +45,7 @@ function validateFloat(float $value) {
  * @return string|null
  */
 
-function validateCategory(string $id, array $allowed_list) {
+function validate_category(string $id, array $allowed_list) {
     return (!in_array($id, $allowed_list)) ? 'Указана несуществующая категория' : null;
 }
 
@@ -57,7 +57,7 @@ function validateCategory(string $id, array $allowed_list) {
  * @return string|null
  */
 
-function validateDate(?string $value) {
+function validate_date(?string $value) {
     if (!is_date_valid($value)) {
         return 'Необходимо ввести дату в формате ГГГГ-ММ-ДД';
     } else if (strtotime($value) < strtotime('+1 day')) {
@@ -67,7 +67,7 @@ function validateDate(?string $value) {
     return null;
 }
 
-function validateBet($value, $price, $bet_step) {
+function validate_bet($value, $price, $bet_step) {
     if ($value <= 0) {
         return 'В этом поле должно быть целое положительное число';
     } else if ($value < ($price + $bet_step)) {

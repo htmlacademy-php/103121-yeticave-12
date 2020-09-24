@@ -4,7 +4,7 @@ require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
 
-$categories = getCategories($connect);
+$categories = get_categories($connect);
 
 $categories_content  = include_template('categories.php',
     [
@@ -14,7 +14,7 @@ $categories_content  = include_template('categories.php',
 
 $id  = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
-$result_lot = getLot($connect, $id);
+$result_lot = get_lot($connect, $id);
 
 if (!mysqli_num_rows($result_lot)) {
     http_response_code(404);
@@ -29,7 +29,7 @@ if (!mysqli_num_rows($result_lot)) {
 
     $title = $lot['lot_name'];
 
-    $lot_bets = getLotBets($connect, $lot['id']);
+    $lot_bets = get_lot_bets($connect, $lot['id']);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_SESSION['user'])) {
@@ -41,13 +41,13 @@ if (!mysqli_num_rows($result_lot)) {
 
             $rules = [
                 'cost' => function($value, $price, $bet_step) {
-                    return validateBet((int)$value, $price, $bet_step);
+                    return validate_bet((int)$value, $price, $bet_step);
                 }
             ];
 
             foreach ($bet as $key => $value) {
                 $bet[$key] = trim($value);
-                $errors[$key] = validateFilled($value);
+                $errors[$key] = validate_filled($value);
                 if (isset($rules[$key])) {
                     $rule = $rules[$key];
                     $errors[$key] = $rule($value, $lot['price'], $lot['bet_step']);

@@ -9,7 +9,7 @@ if (isset($_SESSION['user'])) {
     exit();
 }
 
-$categories = getCategories($connect);
+$categories = get_categories($connect);
 
 $categories_content  = include_template('categories.php',
     [
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled($value);
+        $errors[$key] = validate_filled($value);
     }
 
     if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {

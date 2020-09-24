@@ -67,7 +67,17 @@ function validate_date(?string $value) {
     return null;
 }
 
-function validate_bet($value, $price, $bet_step) {
+/**
+ * @param int $value
+ * @param int $price
+ * @param int $bet_step
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string|null
+ */
+
+function validate_bet(int $value, int $price, int $bet_step) {
     if ($value <= 0) {
         return 'В этом поле должно быть целое положительное число';
     } else if ($value < ($price + $bet_step)) {

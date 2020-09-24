@@ -12,7 +12,7 @@ $categories_content  = include_template('categories.php',
     ]
 );
 
-$id  = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+$id  = (int)filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
 $result_lot = get_lot($connect, $id);
 
@@ -41,7 +41,7 @@ if (!mysqli_num_rows($result_lot)) {
 
             $rules = [
                 'cost' => function($value, $price, $bet_step) {
-                    return validate_bet((int)$value, $price, $bet_step);
+                    return validate_bet((int)$value, (int)$price, (int)$bet_step);
                 }
             ];
 

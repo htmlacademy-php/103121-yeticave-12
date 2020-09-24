@@ -256,7 +256,16 @@ function get_user_bets(mysqli $connect, int $user_id) {
     return mysqli_fetch_all($result_user_bets, MYSQLI_ASSOC);
 }
 
-function get_lot(mysqli $connect, $id) {
+/**
+ * @param mysqli $connect
+ * @param int $id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mysqli_result
+ */
+
+function get_lot(mysqli $connect, int $id) {
     $sql_get_lot = "SELECT l.name AS lot_name,
         l.id,
         c.name AS category_name,
@@ -269,7 +278,7 @@ function get_lot(mysqli $connect, $id) {
         (SELECT user_id FROM bets WHERE date = (SELECT MAX(date) FROM bets b JOIN lots l ON l.id = b.lot_id WHERE l.id = '$id')) AS bet_author_id
         FROM lots l JOIN categories c ON l.category_id = c.id
         LEFT JOIN bets b ON l.id = b.lot_id
-        WHERE l.id = '$id'";
+        WHERE l.id = $id";
     return handle_query($connect, $sql_get_lot);
 }
 
@@ -301,6 +310,14 @@ function get_time_passed(string $date) {
     }
 }
 
+/**
+ * @param mysqli $connect
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mysqli_result
+ */
+
 function get_lots_without_winner(mysqli $connect) {
     $sql_get_lots_without_winner = "SELECT DISTINCT l.id, l.name, l.finish_date, l.winner_id
         FROM lots l
@@ -310,7 +327,16 @@ function get_lots_without_winner(mysqli $connect) {
     return handle_query($connect, $sql_get_lots_without_winner);
 }
 
-function get_winner(mysqli $connect, $lot_id) {
+/**
+ * @param mysqli $connect
+ * @param int $lot_id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mysqli_result
+ */
+
+function get_winner(mysqli $connect, int $lot_id) {
     $sql_get_winner = "SELECT user_id
         FROM bets
         WHERE price = (
@@ -322,12 +348,31 @@ function get_winner(mysqli $connect, $lot_id) {
     return handle_query($connect, $sql_get_winner);
 }
 
-function get_category_by_id(mysqli $connect, $category_id) {
+/**
+ * @param mysqli $connect
+ * @param int $category_id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mysqli_result
+ */
+
+function get_category_by_id(mysqli $connect, int $category_id) {
     $sql_get_category = "SELECT name FROM categories WHERE id = $category_id";
     return handle_query($connect, $sql_get_category);
 }
 
-function get_pagination($connect, $currentPage, $search, $type) {
+/**
+ * @param mysqli $connect
+ * @param string $search
+ * @param string $type
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mysqli_result
+ */
+
+function get_pagination(mysqli $connect, string $search, string $type) {
     $current_page = $_GET['page'] ?? 1;
     $offset = ($current_page - 1) * ITEMS_ON_PAGE;
     $search_escaped = mysqli_real_escape_string($connect, $search);
@@ -340,11 +385,21 @@ function get_pagination($connect, $currentPage, $search, $type) {
         'search_escaped' => $search_escaped,
         'offset' => $offset,
         'pages' => $pages,
-        'pages_count' => $pages_count
+        'pages_count' => $pages_count,
+        'current_page' => $current_page
     ];
 }
 
-function get_pagination_sql($type, $search_escaped) {
+/**
+ * @param string $search_escaped
+ * @param string $type
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string
+ */
+
+function get_pagination_sql(string $type, string $search_escaped) {
     switch ($type) {
         case 'search':
             return "SELECT COUNT(l.id) AS cnt
@@ -361,12 +416,33 @@ function get_pagination_sql($type, $search_escaped) {
     }
 }
 
-function get_lots_by_search($connect, $type, $search_escaped, $offset) {
+/**
+ * @param mysqli $connect
+ * @param string $type
+ * @param string $search_escaped
+ * @param int $offset
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string
+ */
+
+function get_lots_by_search(mysqli $connect, string $type, string $search_escaped, int $offset) {
     $sql = get_lots_by_search_sql($type, $search_escaped, $offset);
     return mysqli_fetch_all(mysqli_query($connect, $sql), MYSQLI_ASSOC);
 }
 
-function get_lots_by_search_sql($type, $search_escaped, $offset) {
+/**
+ * @param string $type
+ * @param string $search_escaped
+ * @param int $offset
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string
+ */
+
+function get_lots_by_search_sql(string $type, string $search_escaped, int $offset) {
     switch ($type) {
         case 'search':
             return "SELECT l.id,

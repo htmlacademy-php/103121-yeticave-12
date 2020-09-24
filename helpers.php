@@ -322,3 +322,80 @@ function getWinner(mysqli $connect, $lot_id) {
     return handle_query($connect, $sql_get_winner);
 }
 
+function getCategoryById(mysqli $connect, $category_id) {
+    $sql_get_category = "SELECT name FROM categories WHERE id = $category_id";
+    return handle_query($connect, $sql_get_category);
+}
+
+function getPagination($connect, $currentPage, $search, $type) {
+    $current_page = $_GET['page'] ?? 1;
+    $offset = ($current_page - 1) * ITEMS_ON_PAGE;
+    $search_escaped = mysqli_real_escape_string($connect, $search);
+    $sql = getPaginationSql($type, $search_escaped);
+    $items_count = mysqli_fetch_assoc(mysqli_query($connect, $sql))['cnt'];
+    $pages_count = ceil($items_count / ITEMS_ON_PAGE);
+    $pages = range(1, $pages_count);
+
+    return [
+        'search_escaped' => $search_escaped,
+        'offset' => $offset,
+        'pages' => $pages,
+        'pages_count' => $pages_count
+    ];
+}
+
+function getPaginationSql($type, $search_escaped) {
+    switch ($type) {
+        case 'search':
+            return "SELECT COUNT(l.id) AS cnt
+                FROM lots l
+                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+                AND MATCH(l.name, l.description) AGAINST('$search_escaped*' IN BOOLEAN MODE)
+                ORDER BY l.start_date DESC";
+        case 'category':
+            return "SELECT COUNT(l.id) AS cnt
+                FROM lots l
+                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+                AND l.category_id = $search_escaped
+                ORDER BY l.start_date DESC";
+    }
+}
+
+function getLotsBySearch($connect, $type, $search_escaped, $offset) {
+    $sql = getLotsBySearchSql($type, $search_escaped, $offset);
+    return mysqli_fetch_all(mysqli_query($connect, $sql), MYSQLI_ASSOC);
+}
+
+function getLotsBySearchSql($type, $search_escaped, $offset) {
+    switch ($type) {
+        case 'search':
+            return "SELECT l.id,
+                l.name,
+                l.start_price,
+                l.image,
+                IFNULL(b.price, l.start_price) AS price,
+                c.name AS category,
+                l.finish_date
+                FROM lots l
+                LEFT JOIN bets b ON l.id = b.lot_id
+                JOIN categories c ON l.category_id = c.id
+                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+                AND MATCH(l.name, l.description) AGAINST('$search_escaped*' IN BOOLEAN MODE)
+                ORDER BY l.start_date DESC LIMIT " . ITEMS_ON_PAGE . " OFFSET " . $offset;
+        case 'category':
+            return "SELECT l.id,
+                l.name,
+                l.start_price,
+                l.image,
+                IFNULL(b.price, l.start_price) AS price,
+                c.name AS category,
+                l.finish_date
+                FROM lots l
+                LEFT JOIN bets b ON l.id = b.lot_id
+                JOIN categories c ON l.category_id = c.id
+                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+                AND l.category_id = $search_escaped
+                ORDER BY l.start_date DESC LIMIT " . ITEMS_ON_PAGE . " OFFSET $offset";
+    }
+}
+

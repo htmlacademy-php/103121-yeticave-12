@@ -10,15 +10,16 @@ $categories_content  = include_template('categories.php',
     ]
 );
 
-$search = $_GET['search'] ?? null;
-$type = 'search';
+$category = filter_input(INPUT_GET, 'category', FILTER_SANITIZE_NUMBER_INT) ?? null;
+$type = 'category';
 
-if ($search) {
+if ($category) {
     $current_page = $_GET['page'] ?? 1;
 
-    $pagination = getPagination($connect, $current_page, $search, $type);
+    $pagination = getPagination($connect, $current_page, $category, $type);
 
     $lots = getLotsBySearch($connect, $type, $pagination['search_escaped'], $pagination['offset']);
+    $category_name = mysqli_fetch_assoc(getCategoryById($connect, $category));
 }
 
 $pagination_content = include_template('pagination.php',
@@ -26,17 +27,17 @@ $pagination_content = include_template('pagination.php',
         'pages' => $pagination['pages'] ?? null,
         'pages_count' => $pagination['pages_count'] ?? null,
         'current_page' => (int)$current_page ?? null,
-        'search' => $search,
-        'type' => 'search'
+        'search' => $category,
+        'type' => 'category'
     ]
 );
 
-$page_content = include_template('search.php',
+$page_content = include_template('category.php',
     [
         'categories_content' => $categories_content,
         'pagination_content' => $pagination_content,
         'categories' => $categories,
-        'search' => $search,
+        'category' =>  $category_name,
         'lots' => $lots ?? null
     ]
 );

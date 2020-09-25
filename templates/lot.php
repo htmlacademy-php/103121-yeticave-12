@@ -13,21 +13,34 @@
             <div class="lot-item__right">
                 <div class="lot-item__state">
                     <div class="lot-item__timer timer
-                        <?= get_time_range($lot['finish_date'])[0] >= 1
-                            ? ''
-                            : 'timer--finishing';
-                        ?>
+                        <?php if(get_time_difference($lot['finish_date']) <= 0): ?>
+                            timer--end
+                        <?php elseif(get_time_range($lot['finish_date'])[0] < 1): ?>
+                            timer--finishing
+                        <?php endif; ?>
                     ">
-                        <?= implode(':' ,get_time_range($lot['finish_date'])); ?>
+                        <?php if($_SESSION['user']['id'] === $lot['winner_id']): ?>
+                            Ставка выиграла
+                        <?php elseif(get_time_difference($lot['finish_date']) <= 0): ?>
+                            Торги окончены
+                        <?php else: ?>
+                            <?= implode(':' ,get_time_range($lot['finish_date'])); ?>
+                        <?php endif; ?>
                     </div>
                     <div class="lot-item__cost-state">
                         <div class="lot-item__rate">
                             <span class="lot-item__amount">Текущая цена</span>
                             <span class="lot-item__cost"><?= format_price($lot['price']); ?></span>
                         </div>
-                        <div class="lot-item__min-cost">
-                        Мин. ставка <span><?= format_price($lot['bet_step'] + $lot['price']); ?></span>
-                        </div>
+                        <?php if ((isset($_SESSION['user']))
+                                && ($_SESSION['user']['id'] !== $lot['author_id'])
+                                && ($_SESSION['user']['id'] !== $lot['bet_author_id'])
+                                && (strtotime($lot['finish_date']) > time()))
+                        :?>
+                            <div class="lot-item__min-cost">
+                            Мин. ставка <span><?= format_price($lot['bet_step'] + $lot['price']); ?></span>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     <?php if ((isset($_SESSION['user']))
                             && ($_SESSION['user']['id'] !== $lot['author_id'])

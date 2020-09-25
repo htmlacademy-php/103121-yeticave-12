@@ -284,6 +284,7 @@ function get_user_bets(mysqli $connect, int $user_id) {
 function get_lot(mysqli $connect, int $id) {
     $sql_get_lot = "SELECT l.name AS lot_name,
         l.id,
+        l.winner_id,
         c.name AS category_name,
         l.image,
         l.description,

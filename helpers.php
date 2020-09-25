@@ -195,6 +195,18 @@ function get_time_range(string $date) {
 }
 
 /**
+ * @param string $date
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return int;
+ */
+
+function get_time_difference(string $date) {
+    return strtotime($date) - time();
+}
+
+/**
  * @param string $name
  *
  * @author Trikashnyi Artem tema-luch@mail.ru
@@ -245,7 +257,11 @@ function get_lot_bets(mysqli $connect, int $lot_id) {
  */
 
 function get_user_bets(mysqli $connect, int $user_id) {
-    $sql_get_user_bets = "SELECT l.id, l.name AS lot_name, l.image, c.name AS category_name, l.finish_date, u.contacts, MAX(b.price) AS bet_price, MAX(b.date) AS bet_date
+    $sql_get_user_bets = "SELECT l.id, l.winner_id, u.id AS user_id, l.name AS lot_name,
+            l.image, c.name AS category_name, l.finish_date, u.contacts, MAX(b.price) AS bet_price, MAX(b.date) AS bet_date,
+            (SELECT uu.contacts
+            FROM users uu JOIN lots ll ON ll.author_id = uu.id
+            WHERE ll.id = l.id) AS author_contacts
         FROM bets b
         JOIN users u ON u.id = b.user_id
         JOIN lots l ON b.lot_id = l.id

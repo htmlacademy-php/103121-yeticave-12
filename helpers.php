@@ -278,7 +278,8 @@ function get_lot(mysqli $connect, int $id) {
         (SELECT user_id FROM bets WHERE date = (SELECT MAX(date) FROM bets b JOIN lots l ON l.id = b.lot_id WHERE l.id = '$id')) AS bet_author_id
         FROM lots l JOIN categories c ON l.category_id = c.id
         LEFT JOIN bets b ON l.id = b.lot_id
-        WHERE l.id = $id";
+        WHERE l.id = $id
+        GROUP BY l.id";
     return handle_query($connect, $sql_get_lot);
 }
 

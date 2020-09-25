@@ -3,6 +3,7 @@
 require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
+require_once('const.php');
 
 $categories = get_categories($connect);
 
@@ -17,10 +18,13 @@ $id  = (int)filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 $result_lot = get_lot($connect, $id);
 
 if (!mysqli_num_rows($result_lot)) {
-    http_response_code(404);
+    http_response_code(UNKNOWN_ERROR);
     $page_content = include_template('error.php',
         [
-            'categories_content' => $categories_content
+            'categories_content' => $categories_content,
+            'error_code' => UNKNOWN_ERROR,
+            'error_text' => 'Страница не найдена',
+            'error_description' => 'Данной страницы не существует на сайте.'
         ]
     );
     $title = 'Error';

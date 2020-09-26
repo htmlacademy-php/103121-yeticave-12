@@ -3,7 +3,7 @@ require_once('helpers.php');
 require_once('init.php');
 require_once('getwinner.php');
 
-$categories = getCategories($connect);
+$categories = get_categories($connect);
 
 $categories_content  = include_template('categories.php',
     [

@@ -4,12 +4,7 @@ require_once('init.php');
 require_once('validators.php');
 require_once('const.php');
 
-if (!isset($_SESSION['user'])) {
-    http_response_code(FORBIDDEN_ERROR);
-    exit();
-}
-
-$categories = getCategories($connect);
+$categories = get_categories($connect);
 
 $categories_ids = array_column($categories, 'id');
 
@@ -19,21 +14,23 @@ $categories_content  = include_template('categories.php',
     ]
 );
 
+$title = 'Добавление лота';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
 
     $rules = [
         'category' => function($value) use ($categories_ids) {
-            return validateCategory($value, $categories_ids);
+            return validate_category($value, $categories_ids);
         },
         'lot-step' => function($value) {
-            return validateInt((int)$value);
+            return validate_int((int)$value);
         },
         'lot-rate' => function($value) {
-            return validateFloat((float)$value);
+            return validate_float((float)$value);
         },
         'lot-date' => function($value) {
-            return validateDate($value);
+            return validate_date($value);
         }
     ];
 
@@ -51,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled($value);
+        $errors[$key] = validate_filled($value);
         if (isset($rules[$key])) {
             $rule = $rules[$key];
             $errors[$key] = $rule($value);
@@ -99,10 +96,23 @@ $page_content = include_template('add.php',
     ]
 );
 
+if (!isset($_SESSION['user'])) {
+    http_response_code(FORBIDDEN_ERROR);
+    $title = 'Error';
+    $page_content = include_template('error.php',
+        [
+            'categories_content' => $categories_content,
+            'error_code' => FORBIDDEN_ERROR,
+            'error_text' => 'Доступ запрещен',
+            'error_description' => 'Для получения доступа авторизуйтесь или зарегистрируйтесь'
+        ]
+    );
+}
+
 $layout_content = include_template('layout.php',
     [
         'content' => $page_content,
-        'title' => 'Добавление лота',
+        'title' => $title,
         'categories' => $categories,
         'user' => $_SESSION['user'] ?? null
     ]

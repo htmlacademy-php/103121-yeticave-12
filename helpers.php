@@ -195,6 +195,18 @@ function get_time_range(string $date) {
 }
 
 /**
+ * @param string $date
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return int;
+ */
+
+function get_time_difference(string $date) {
+    return strtotime($date) - time();
+}
+
+/**
  * @param string $name
  *
  * @author Trikashnyi Artem tema-luch@mail.ru
@@ -202,7 +214,7 @@ function get_time_range(string $date) {
  * @return string
  */
 
-function getPostVal(string $name) {
+function get_post_val(string $name) {
     return filter_input(INPUT_POST, $name);
 }
 
@@ -214,7 +226,7 @@ function getPostVal(string $name) {
  * @return mixed
  */
 
-function getCategories(mysqli $connect) {
+function get_categories(mysqli $connect) {
     $sql_get_categories = 'SELECT * FROM categories;';
     $result_categories = handle_query($connect, $sql_get_categories);
     return mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
@@ -229,7 +241,7 @@ function getCategories(mysqli $connect) {
  * @return mixed
  */
 
-function getLotBets(mysqli $connect, int $lot_id) {
+function get_lot_bets(mysqli $connect, int $lot_id) {
     $sql_get_lot_bets = "SELECT u.name, b.price, b.date FROM bets b JOIN users u ON u.id = b.user_id WHERE b.lot_id = '$lot_id' ORDER BY b.date DESC;";
     $result_lot_bets = handle_query($connect, $sql_get_lot_bets);
     return mysqli_fetch_all($result_lot_bets, MYSQLI_ASSOC);
@@ -244,8 +256,12 @@ function getLotBets(mysqli $connect, int $lot_id) {
  * @return mixed
  */
 
-function getUserBets(mysqli $connect, int $user_id) {
-    $sql_get_user_bets = "SELECT l.id, l.name AS lot_name, l.image, c.name AS category_name, l.finish_date, u.contacts, MAX(b.price) AS bet_price, MAX(b.date) AS bet_date
+function get_user_bets(mysqli $connect, int $user_id) {
+    $sql_get_user_bets = "SELECT l.id, l.winner_id, u.id AS user_id, l.name AS lot_name,
+            l.image, c.name AS category_name, l.finish_date, u.contacts, MAX(b.price) AS bet_price, MAX(b.date) AS bet_date,
+            (SELECT uu.contacts
+            FROM users uu JOIN lots ll ON ll.author_id = uu.id
+            WHERE ll.id = l.id) AS author_contacts
         FROM bets b
         JOIN users u ON u.id = b.user_id
         JOIN lots l ON b.lot_id = l.id
@@ -256,9 +272,19 @@ function getUserBets(mysqli $connect, int $user_id) {
     return mysqli_fetch_all($result_user_bets, MYSQLI_ASSOC);
 }
 
-function getLot(mysqli $connect, $id) {
+/**
+ * @param mysqli $connect
+ * @param int $id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mysqli_result
+ */
+
+function get_lot(mysqli $connect, int $id) {
     $sql_get_lot = "SELECT l.name AS lot_name,
         l.id,
+        l.winner_id,
         c.name AS category_name,
         l.image,
         l.description,
@@ -269,7 +295,8 @@ function getLot(mysqli $connect, $id) {
         (SELECT user_id FROM bets WHERE date = (SELECT MAX(date) FROM bets b JOIN lots l ON l.id = b.lot_id WHERE l.id = '$id')) AS bet_author_id
         FROM lots l JOIN categories c ON l.category_id = c.id
         LEFT JOIN bets b ON l.id = b.lot_id
-        WHERE l.id = '$id'";
+        WHERE l.id = $id
+        GROUP BY l.id";
     return handle_query($connect, $sql_get_lot);
 }
 
@@ -281,7 +308,7 @@ function getLot(mysqli $connect, $id) {
  * @return string
  */
 
-function getTimePassed(string $date) {
+function get_time_passed(string $date) {
     $time_passed = time() - strtotime($date);
     $hours = floor($time_passed / SECONDS_IN_HOUR);
     $minutes = floor(($time_passed % SECONDS_IN_MINUTE) / 60);
@@ -301,7 +328,15 @@ function getTimePassed(string $date) {
     }
 }
 
-function getLotsWithoutWinner(mysqli $connect) {
+/**
+ * @param mysqli $connect
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mysqli_result
+ */
+
+function get_lots_without_winner(mysqli $connect) {
     $sql_get_lots_without_winner = "SELECT DISTINCT l.id, l.name, l.finish_date, l.winner_id
         FROM lots l
         JOIN bets b ON l.id = b.lot_id
@@ -310,7 +345,16 @@ function getLotsWithoutWinner(mysqli $connect) {
     return handle_query($connect, $sql_get_lots_without_winner);
 }
 
-function getWinner(mysqli $connect, $lot_id) {
+/**
+ * @param mysqli $connect
+ * @param int $lot_id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mysqli_result
+ */
+
+function get_winner(mysqli $connect, int $lot_id) {
     $sql_get_winner = "SELECT user_id
         FROM bets
         WHERE price = (
@@ -320,5 +364,132 @@ function getWinner(mysqli $connect, $lot_id) {
             WHERE l.id = '$lot_id'
         ) AND lot_id = '$lot_id'";
     return handle_query($connect, $sql_get_winner);
+}
+
+/**
+ * @param mysqli $connect
+ * @param int $category_id
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mysqli_result
+ */
+
+function get_category_by_id(mysqli $connect, int $category_id) {
+    $sql_get_category = "SELECT name FROM categories WHERE id = $category_id";
+    return handle_query($connect, $sql_get_category);
+}
+
+/**
+ * @param mysqli $connect
+ * @param string $search
+ * @param string $type
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return array
+ */
+
+function get_pagination(mysqli $connect, string $search, string $type) {
+    $current_page = $_GET['page'] ?? 1;
+    $offset = ($current_page - 1) * ITEMS_ON_PAGE;
+    $search_escaped = mysqli_real_escape_string($connect, $search);
+    $sql = get_pagination_sql($type, $search_escaped);
+    $items_count = mysqli_fetch_assoc(mysqli_query($connect, $sql))['cnt'];
+    $pages_count = ceil($items_count / ITEMS_ON_PAGE);
+    $pages = range(1, $pages_count);
+
+    return [
+        'search_escaped' => $search_escaped,
+        'offset' => $offset,
+        'pages' => $pages,
+        'pages_count' => $pages_count,
+        'current_page' => $current_page
+    ];
+}
+
+/**
+ * @param string $search_escaped
+ * @param string $type
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string
+ */
+
+function get_pagination_sql(string $type, string $search_escaped) {
+    switch ($type) {
+        case 'search':
+            return "SELECT COUNT(l.id) AS cnt
+                FROM lots l
+                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+                AND MATCH(l.name, l.description) AGAINST('$search_escaped*' IN BOOLEAN MODE)
+                ORDER BY l.start_date DESC";
+        case 'category':
+            return "SELECT COUNT(l.id) AS cnt
+                FROM lots l
+                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+                AND l.category_id = $search_escaped
+                ORDER BY l.start_date DESC";
+    }
+}
+
+/**
+ * @param mysqli $connect
+ * @param string $type
+ * @param string $search_escaped
+ * @param int $offset
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return mixed
+ */
+
+function get_lots_by_search(mysqli $connect, string $type, string $search_escaped, int $offset) {
+    $sql = get_lots_by_search_sql($type, $search_escaped, $offset);
+    return mysqli_fetch_all(mysqli_query($connect, $sql), MYSQLI_ASSOC);
+}
+
+/**
+ * @param string $type
+ * @param string $search_escaped
+ * @param int $offset
+ *
+ * @author Trikashnyi Artem tema-luch@mail.ru
+ *
+ * @return string
+ */
+
+function get_lots_by_search_sql(string $type, string $search_escaped, int $offset) {
+    switch ($type) {
+        case 'search':
+            return "SELECT l.id,
+                l.name,
+                l.start_price,
+                l.image,
+                IFNULL(b.price, l.start_price) AS price,
+                c.name AS category,
+                l.finish_date
+                FROM lots l
+                LEFT JOIN bets b ON l.id = b.lot_id
+                JOIN categories c ON l.category_id = c.id
+                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+                AND MATCH(l.name, l.description) AGAINST('$search_escaped*' IN BOOLEAN MODE)
+                ORDER BY l.start_date DESC LIMIT " . ITEMS_ON_PAGE . " OFFSET " . $offset;
+        case 'category':
+            return "SELECT l.id,
+                l.name,
+                l.start_price,
+                l.image,
+                IFNULL(b.price, l.start_price) AS price,
+                c.name AS category,
+                l.finish_date
+                FROM lots l
+                LEFT JOIN bets b ON l.id = b.lot_id
+                JOIN categories c ON l.category_id = c.id
+                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
+                AND l.category_id = $search_escaped
+                ORDER BY l.start_date DESC LIMIT " . ITEMS_ON_PAGE . " OFFSET $offset";
+    }
 }
 

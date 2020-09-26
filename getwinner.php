@@ -1,13 +1,13 @@
 <?php
 require('vendor/autoload.php');
 
-$result_lots_without_winner =  getLotsWithoutWinner($connect);
+$result_lots_without_winner =  get_lots_without_winner($connect);
 
 if (mysqli_num_rows($result_lots_without_winner)) {
     $lots_without_winner = mysqli_fetch_all($result_lots_without_winner, MYSQLI_ASSOC);
 
     foreach($lots_without_winner as $lot) {
-        $result_winner = getWinner($connect, $lot['id']);
+        $result_winner = get_winner($connect, (int)$lot['id']);
 
         if (mysqli_num_rows($result_winner)) {
             $winner = (int)mysqli_fetch_assoc($result_winner)['user_id'];

@@ -5,11 +5,11 @@ require_once('validators.php');
 require_once('const.php');
 
 if (isset($_SESSION['user'])) {
-    http_response_code(FORBIDDEN_ERROR);
+    header("Location: /index.php");
     exit();
 }
 
-$categories = getCategories($connect);
+$categories = get_categories($connect);
 
 $categories_content  = include_template('categories.php',
     [
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled($value);
+        $errors[$key] = validate_filled($value);
     }
 
     if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {

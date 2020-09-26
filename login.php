@@ -3,7 +3,12 @@ require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
 
-$categories = getCategories($connect);
+if (isset($_SESSION['user'])) {
+    header("Location: /index.php");
+    exit();
+}
+
+$categories = get_categories($connect);
 
 $categories_content  = include_template('categories.php',
     [
@@ -11,10 +16,7 @@ $categories_content  = include_template('categories.php',
     ]
 );
 
-if (isset($_SESSION['user'])) {
-    header("Location: /index.php");
-    exit();
-} else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
 
     $user = filter_input_array(INPUT_POST, [
@@ -27,7 +29,7 @@ if (isset($_SESSION['user'])) {
     }
 
     foreach ($_POST as $key => $value) {
-        $errors[$key] = validateFilled($value);
+        $errors[$key] = validate_filled($value);
     }
 
     if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {

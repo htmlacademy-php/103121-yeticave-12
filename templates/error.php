@@ -1,5 +1,5 @@
 <?= $categories_content; ?>
 <section class="lot-item container">
-    <h2>404 Страница не найдена</h2>
-    <p>Данной страницы не существует на сайте.</p>
+    <h2><?= $error_code; ?> <?= $error_text; ?></h2>
+    <p><?= $error_description; ?></p>
 </section>

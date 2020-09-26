@@ -52,7 +52,7 @@
         <ul class="nav__list container">
             <?php foreach ($categories as $category): ?>
             <li class="nav__item">
-                <a href="pages/all-lots.html"><?= htmlspecialchars($category['name'], ENT_QUOTES); ?></a>
+                <a href="category.php?category=<?= $category['id'] ?>"><?= htmlspecialchars($category['name'], ENT_QUOTES); ?></a>
             </li>
             <?php endforeach; ?>
         </ul>

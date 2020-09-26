@@ -3,6 +3,11 @@ require_once('helpers.php');
 require_once('init.php');
 require_once('validators.php');
 
+if (isset($_SESSION['user'])) {
+    header("Location: /index.php");
+    exit();
+}
+
 $categories = get_categories($connect);
 
 $categories_content  = include_template('categories.php',
@@ -11,10 +16,7 @@ $categories_content  = include_template('categories.php',
     ]
 );
 
-if (isset($_SESSION['user'])) {
-    header("Location: /index.php");
-    exit();
-} else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
 
     $user = filter_input_array(INPUT_POST, [

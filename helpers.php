@@ -387,7 +387,7 @@ function get_category_by_id(mysqli $connect, int $category_id) {
  *
  * @author Trikashnyi Artem tema-luch@mail.ru
  *
- * @return mysqli_result
+ * @return array
  */
 
 function get_pagination(mysqli $connect, string $search, string $type) {
@@ -442,7 +442,7 @@ function get_pagination_sql(string $type, string $search_escaped) {
  *
  * @author Trikashnyi Artem tema-luch@mail.ru
  *
- * @return string
+ * @return mixed
  */
 
 function get_lots_by_search(mysqli $connect, string $type, string $search_escaped, int $offset) {

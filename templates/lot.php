@@ -1,7 +1,7 @@
 <main>
     <?= $categories_content; ?>
     <section class="lot-item container">
-        <h2><?= $lot['lot_name'] ?></h2>
+        <h2><?= htmlspecialchars($lot['lot_name'], ENT_QUOTES); ?></h2>
         <div class="lot-item__content">
             <div class="lot-item__left">
                 <div class="lot-item__image">
@@ -50,7 +50,7 @@
                         <form class="lot-item__form" action="lot.php?id=<?= $lot['id']?>" method="post" autocomplete="off">
                             <p class="lot-item__form-item form__item <?= isset($errors['cost']) ? 'form__item--invalid' : ''; ?>">
                                 <label for="cost">Ваша ставка</label>
-                                <input id="cost" type="text" name="cost" value="<?= isset($errors['cost']) ? htmlspecialchars(get_post_val('cost', ENT_QUOTES)) : ''; ?>">
+                                <input id="cost" type="text" name="cost" value="<?= isset($errors['cost']) ? htmlspecialchars(get_post_val('cost'), ENT_QUOTES) : ''; ?>">
                                 <span class="form__error"><?= $errors['cost'] ?? '' ?></span>
                             </p>
                             <button type="submit" class="button">Сделать ставку</button>

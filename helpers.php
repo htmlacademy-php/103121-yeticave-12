@@ -187,6 +187,7 @@ function format_price(float $old_price) {
  */
 
 function get_time_range(string $date) {
+
     $time_difference = strtotime($date) - time();
     $hours_count = floor($time_difference / SECONDS_IN_HOUR);
     $minutes_count = floor(($time_difference % SECONDS_IN_HOUR) / SECONDS_IN_MINUTE);
@@ -312,20 +313,24 @@ function get_time_passed(string $date) {
     $time_passed = time() - strtotime($date);
     $hours = floor($time_passed / SECONDS_IN_HOUR);
     $minutes = floor(($time_passed % SECONDS_IN_MINUTE) / 60);
+    $result = null;
     switch (true) {
         case (($hours < 1) && ($minutes < 1)):
-            return 'Сейчас';
-
+            $result = 'Сейчас';
+            break;
         case ($hours < 1):
-            return $minutes . ' ' . get_noun_plural_form($minutes, 'минута', 'минуты', 'минут') . ' назад';
-
+            $result = $minutes . ' ' . get_noun_plural_form($minutes, 'минута', 'минуты', 'минут') . ' назад';
+            break;
         case ($hours < 23):
-            return $hours . ' ' . get_noun_plural_form($hours, 'час', 'часа', 'часов') . ' назад';
-
+            $result = $hours . ' ' . get_noun_plural_form($hours, 'час', 'часа', 'часов') . ' назад';
+            break;
         default:
             $bet_time = strtotime($date);
-            return date('d.m.y', $bet_time) . ' в ' . date('H:i', $bet_time);
+            $result = date('d.m.y', $bet_time) . ' в ' . date('H:i', $bet_time);
+            break;
     }
+
+    return $result;
 }
 
 /**
@@ -394,8 +399,8 @@ function get_pagination(mysqli $connect, string $search, string $type) {
     $current_page = $_GET['page'] ?? 1;
     $offset = ($current_page - 1) * ITEMS_ON_PAGE;
     $search_escaped = mysqli_real_escape_string($connect, $search);
-    $sql = get_pagination_sql($type, $search_escaped);
-    $items_count = mysqli_fetch_assoc(mysqli_query($connect, $sql))['cnt'];
+    $sql = get_lots_pagination_sql($type, $search_escaped);
+    $items_count = mysqli_fetch_assoc(mysqli_query($connect, $sql))['cnt'] ?? 0;
     $pages_count = ceil($items_count / ITEMS_ON_PAGE);
     $pages = range(1, $pages_count);
 
@@ -404,7 +409,7 @@ function get_pagination(mysqli $connect, string $search, string $type) {
         'offset' => $offset,
         'pages' => $pages,
         'pages_count' => $pages_count,
-        'current_page' => $current_page
+        'current_page' => (int)$current_page
     ];
 }
 
@@ -417,21 +422,26 @@ function get_pagination(mysqli $connect, string $search, string $type) {
  * @return string
  */
 
-function get_pagination_sql(string $type, string $search_escaped) {
+function get_lots_pagination_sql(string $type, string $search_escaped) {
+
+    $result = "SELECT COUNT(l.id) AS cnt
+        FROM lots l
+        WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()";
+
     switch ($type) {
         case 'search':
-            return "SELECT COUNT(l.id) AS cnt
-                FROM lots l
-                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
-                AND MATCH(l.name, l.description) AGAINST('$search_escaped*' IN BOOLEAN MODE)
-                ORDER BY l.start_date DESC";
+            $result .= " AND MATCH(l.name, l.description) AGAINST('$search_escaped*' IN BOOLEAN MODE)";
+            break;
         case 'category':
-            return "SELECT COUNT(l.id) AS cnt
-                FROM lots l
-                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
-                AND l.category_id = $search_escaped
-                ORDER BY l.start_date DESC";
+            $result .= " AND l.category_id = $search_escaped";
+            break;
+        default:
+            break;
     }
+
+    $result .= " ORDER BY l.start_date DESC";
+
+    return $result;
 }
 
 /**
@@ -461,35 +471,32 @@ function get_lots_by_search(mysqli $connect, string $type, string $search_escape
  */
 
 function get_lots_by_search_sql(string $type, string $search_escaped, int $offset) {
+
+    $result = "SELECT l.id,
+        l.name,
+        l.start_price,
+        l.image,
+        IFNULL(b.price, l.start_price) AS price,
+        c.name AS category,
+        l.finish_date
+        FROM lots l
+        LEFT JOIN bets b ON l.id = b.lot_id
+        JOIN categories c ON l.category_id = c.id
+        WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()";
+
     switch ($type) {
         case 'search':
-            return "SELECT l.id,
-                l.name,
-                l.start_price,
-                l.image,
-                IFNULL(b.price, l.start_price) AS price,
-                c.name AS category,
-                l.finish_date
-                FROM lots l
-                LEFT JOIN bets b ON l.id = b.lot_id
-                JOIN categories c ON l.category_id = c.id
-                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
-                AND MATCH(l.name, l.description) AGAINST('$search_escaped*' IN BOOLEAN MODE)
-                ORDER BY l.start_date DESC LIMIT " . ITEMS_ON_PAGE . " OFFSET " . $offset;
+            $result .= " AND MATCH(l.name, l.description) AGAINST('$search_escaped*' IN BOOLEAN MODE)";
+            break;
         case 'category':
-            return "SELECT l.id,
-                l.name,
-                l.start_price,
-                l.image,
-                IFNULL(b.price, l.start_price) AS price,
-                c.name AS category,
-                l.finish_date
-                FROM lots l
-                LEFT JOIN bets b ON l.id = b.lot_id
-                JOIN categories c ON l.category_id = c.id
-                WHERE UNIX_TIMESTAMP(l.finish_date) > UNIX_TIMESTAMP()
-                AND l.category_id = $search_escaped
-                ORDER BY l.start_date DESC LIMIT " . ITEMS_ON_PAGE . " OFFSET $offset";
+            $result .= " AND l.category_id = $search_escaped";
+            break;
+        default:
+            break;
     }
+
+    $result .= " ORDER BY l.start_date DESC LIMIT " . ITEMS_ON_PAGE . " OFFSET " . $offset;
+
+    return $result;
 }
 

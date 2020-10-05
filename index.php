@@ -17,7 +17,8 @@ l.start_price,
 l.image,
 MAX(IFNULL(b.price, l.start_price)) AS price,
 c.name AS category,
-l.finish_date
+l.finish_date,
+l.start_date
 FROM lots l
 LEFT JOIN bets b ON l.id = b.lot_id
 JOIN categories c ON l.category_id = c.id

@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors['email'] = 'Пользователь с этим email уже зарегистрирован';
         } else {
             $password = password_hash($user['password'], PASSWORD_DEFAULT);
-            $sql = 'INSERT INTO users (email, name, password, contacts) VALUES (?, ?, ? ,?)';
+            $sql = 'INSERT INTO users (email, name, password, contacts) VALUES (?, ?, ?, ?)';
             $res = mysqli_stmt_execute(db_get_prepare_stmt($connect, $sql, [$email, $user['name'], $password, $user['message']]));
         }
 

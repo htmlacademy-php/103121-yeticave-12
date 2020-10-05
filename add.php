@@ -16,7 +16,7 @@ $categories_content  = include_template('categories.php',
 
 $title = 'Добавление лота';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user'], $_SESSION['user']['id'])) {
     $errors = [];
 
     $rules = [
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return validate_float((float)$value);
         },
         'lot-date' => function($value) {
-            return validate_date($value);
+            return validate_date((string)$value);
         }
     ];
 

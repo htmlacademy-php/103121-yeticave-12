@@ -57,14 +57,15 @@ function validate_category(string $id, array $allowed_list) {
  * @return string|null
  */
 
-function validate_date(?string $value) {
+function validate_date(string $value) {
+    $result = null;
     if (!is_date_valid($value)) {
-        return 'Необходимо ввести дату в формате ГГГГ-ММ-ДД';
+        $result = 'Необходимо ввести дату в формате ГГГГ-ММ-ДД';
     } else if (strtotime($value) < strtotime('+1 day')) {
-        return 'Указанная дата должна быть больше текущей даты хотя бы на один день';
+        $result = 'Указанная дата должна быть больше текущей даты хотя бы на один день';
     }
 
-    return null;
+    return $result;
 }
 
 /**
@@ -78,11 +79,12 @@ function validate_date(?string $value) {
  */
 
 function validate_bet(int $value, int $price, int $bet_step) {
+    $result = null;
     if ($value <= 0) {
-        return 'В этом поле должно быть целое положительное число';
+        $result = 'В этом поле должно быть целое положительное число';
     } else if ($value < ($price + $bet_step)) {
-        return 'Ставка должна быть больше, чем текущая цена лота + шаг ставки';
+        $result = 'Ставка должна быть больше либо равна минимальной ставке';
     }
 
-    return null;
+    return $result;
 }

@@ -60,7 +60,7 @@ WHERE id = 2;
 
 /* Получаем список ставок для лота по его ID */
 
-SELECT l.name AS lot_name, b.id AS bet_id, b.price AS bet_price
+SELECT l.name AS lot_name, b.id AS bet_id, b.price AS bet_price, b.date
 FROM bets b JOIN lots l ON b.lot_id = l.id
 WHERE l.id = 1
 ORDER BY b.date ASC;

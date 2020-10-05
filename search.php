@@ -12,18 +12,20 @@ $categories_content  = include_template('categories.php',
 
 $search = $_GET['search'] ?? null;
 $type = 'search';
+$pagination = null;
+$lots = null;
 
 if ($search) {
     $pagination = get_pagination($connect, $search, $type);
 
-    $lots = get_lots_by_search($connect, $type, $pagination['search_escaped'], $pagination['offset']);
+    $lots = get_lots_by_search($connect, $type, $pagination['search_escaped'] ?? '', $pagination['offset'] ?? 1);
 }
 
 $pagination_content = include_template('pagination.php',
     [
         'pages' => $pagination['pages'] ?? null,
         'pages_count' => $pagination['pages_count'] ?? null,
-        'current_page' => (int)$pagination['current_page'] ?? null,
+        'current_page' => $pagination['current_page'] ?? null,
         'search' => $search,
         'type' => 'search'
     ]
@@ -35,7 +37,7 @@ $page_content = include_template('search.php',
         'pagination_content' => $pagination_content,
         'categories' => $categories,
         'search' => $search,
-        'lots' => $lots ?? null
+        'lots' => $lots
     ]
 );
 

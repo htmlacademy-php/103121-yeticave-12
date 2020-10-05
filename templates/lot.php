@@ -1,3 +1,8 @@
+<?php
+    $time = get_time_range($lot['finish_date']);
+    list($hours, $minutes) = $time;
+    $difference = get_time_difference($lot['finish_date']);
+?>
 <main>
     <?= $categories_content; ?>
     <section class="lot-item container">
@@ -13,18 +18,16 @@
             <div class="lot-item__right">
                 <div class="lot-item__state">
                     <div class="lot-item__timer timer
-                        <?php if(get_time_difference($lot['finish_date']) <= 0): ?>
+                        <?php if($difference <= 0): ?>
                             timer--end
-                        <?php elseif(get_time_range($lot['finish_date'])[0] < 1): ?>
+                        <?php elseif($hours < 1): ?>
                             timer--finishing
                         <?php endif; ?>
                     ">
-                        <?php if($_SESSION['user']['id'] === $lot['winner_id']): ?>
-                            Ставка выиграла
-                        <?php elseif(get_time_difference($lot['finish_date']) <= 0): ?>
+                        <?php if($difference <= 0): ?>
                             Торги окончены
                         <?php else: ?>
-                            <?= implode(':' ,get_time_range($lot['finish_date'])); ?>
+                            <?= implode(':' , $time); ?>
                         <?php endif; ?>
                     </div>
                     <div class="lot-item__cost-state">

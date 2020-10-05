@@ -16,6 +16,10 @@
         </div>
         <ul class="lots__list">
             <?php foreach ($lots as $lot): ?>
+            <?php
+                $time = get_time_range($lot['finish_date']);
+                list($hours, $minutes) = $time;
+            ?>
             <li class="lots__item lot">
                 <div class="lot__image">
                     <img src=<?= htmlspecialchars($lot['image'], ENT_QUOTES); ?> width="350" height="260" alt=<?= htmlspecialchars($lot['name'], ENT_QUOTES); ?>>
@@ -28,13 +32,8 @@
                             <span class="lot__amount">Стартовая цена</span>
                             <span class="lot__cost"><?= format_price($lot['price']); ?></span>
                         </div>
-                        <div class="lot__timer timer
-                            <?= get_time_range($lot['finish_date'])[0] >= 1
-                                ? ''
-                                : 'timer--finishing';
-                            ?>
-                        ">
-                            <?= implode(':' ,get_time_range($lot['finish_date'])); ?>
+                        <div class="lot__timer timer<?= $hours >= 1 ? '' : ' timer--finishing'; ?>">
+                            <?= implode(':' , $time); ?>
                         </div>
                     </div>
                 </div>
